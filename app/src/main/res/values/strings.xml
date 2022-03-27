@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Dumo-Go</string>
+    <string name="welcome_msg">Benvingut a Dumo-GO</string>
+    <string name="hide_user">Usuari</string>
+    <string name="hide_pass">Contrassenya</string>
+    <string name="change_pass">Canviar la contrassenya</string>
+</resources>
