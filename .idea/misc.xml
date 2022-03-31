@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_main.xml" value="0.35260416666666666" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_admin_main.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_main.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_user_main.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/loading_layout.xml" value="0.24547101449275363" />
       </map>
     </option>
   </component>

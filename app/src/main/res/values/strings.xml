@@ -4,4 +4,7 @@
     <string name="hide_user">Usuari</string>
     <string name="hide_pass">Contrassenya</string>
     <string name="change_pass">Canviar la contrassenya</string>
+    <string name="lost_pass">He perdut la contrassenya</string>
+    <string name="btn_login">ENTRAR</string>
+    <string name="loading">Conectant...</string>
 </resources>

@@ -25,39 +25,44 @@
         android:ems="10"
         android:hint="@string/hide_user"
         android:inputType="textPersonName"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/et_pass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:ems="10"
         android:hint="@string/hide_pass"
         android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:textColorHint="#757575"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_user" />
+        app:layout_constraintTop_toBottomOf="@+id/et_user"
+        android:autofillHints="" />
 
     <Button
         android:id="@+id/bt_enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="ENTRAR"
+        android:text="@string/btn_login"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/et_pass" />
 
     <TextView
-        android:id="@+id/tv_changepass"
+        android:id="@+id/tv_lostpass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="@string/change_pass"
+        android:text="@string/lost_pass"
         android:textColor="#2196F3"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
