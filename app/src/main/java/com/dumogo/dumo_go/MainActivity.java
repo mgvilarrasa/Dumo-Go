@@ -110,44 +110,46 @@ public class MainActivity extends AppCompatActivity {
         //Conecta Server i envia dades login. Rep codi de connexio o KO
         @Override
         protected HashMap<String, String> doInBackground(HashMap<String, String>... values){
-
             try {
                 //Se conecta al servidor
                 serverAddr = InetAddress.getByName(ADDRESS);
                 Log.i("I/TCP Client", "Connecting...");
                 socket = new Socket(ADDRESS, SERVERPORT);
                 Log.i("I/TCP Client", "Connected to server");
-
                 //envia peticion de cliente
                 Log.i("I/TCP Client", "Send data to server");
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 HashMap<String, String> request = values[0];
                 output.writeObject(request);
-                output.close();
                 //recibe respuesta del servidor y formatea a String
-                Log.i("I/TCP Client", "Received data to server");
+                Log.i("I/TCP Client", "Getting data from server");
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                HashMap <String, String> received = (HashMap) input.readObject();
+                //Obte HashMap
+                HashMap<String, String> received = (HashMap) input.readObject();
+                input.close();
+                output.close();
+                //Log
                 Log.i("I/TCP Client", "Received " + received.get("login"));
                 Log.i("I/TCP Client", "Code " + received.get("codi"));
                 //cierra conexion
-                input.close();
                 socket.close();
                 return received;
             }catch (UnknownHostException ex) {
-                Log.e("E/TCP Client", ex.getMessage());
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
             } catch (IOException ex) {
-                Log.e("E/TCP Client", ex.getMessage());
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
             } catch (ClassNotFoundException ex) {
-                Log.e("E/TCP Client", ex.getMessage());
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
             }
-            return null;
         }
         //Si login OK, enmagatxema la dada
         //Si dada OK, mostra Toast
         @Override
         protected void onPostExecute(HashMap<String, String> value){
-            codeFromServer(value);
+            //Tanca el dialeg de carrega
             progressDialog.dismiss();
             try{
                 if(value.get("login").equals("ko")){
@@ -162,13 +164,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(value.get("login").equals("ok")){
                     Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_LONG).show();
+                    codeFromServer(value);
                     goActivityUser(value.get("tipus"));
                 }
                 else{
                     Toast.makeText(MainActivity.this, "Error!", Toast.LENGTH_LONG).show();
                 }
             }catch (Exception e){
-                Log.e("E/TCP Client", e.getMessage());
+                Log.e("E/TCP Client onPost", e.getMessage());
             }
 
         }
