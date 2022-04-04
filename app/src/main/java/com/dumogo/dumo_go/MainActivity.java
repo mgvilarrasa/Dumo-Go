@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("I/TCP Client", "Received " + received.get("login"));
                 Log.i("I/TCP Client", "Code " + received.get("codi"));
                 //cierra conexion
-                socket.close();
+                //socket.close();
                 return received;
             }catch (UnknownHostException ex) {
                 Log.e("E/TCP  UKN", ex.getMessage());
