@@ -7,4 +7,7 @@
     <string name="lost_pass">He perdut la contrassenya</string>
     <string name="btn_login">ENTRAR</string>
     <string name="loading">Conectant...</string>
+    <string name="cb_admin">Login com admin</string>
+    <string name="ibt_users">Usuaris</string>
+    <string name="ibt_profile">Perfil</string>
 </resources>
