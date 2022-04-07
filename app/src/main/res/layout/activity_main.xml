@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@+id/bt_enter" />
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/cb_Admin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cb_admin"
