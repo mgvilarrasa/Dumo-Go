@@ -10,4 +10,18 @@
     <string name="cb_admin">Login com admin</string>
     <string name="ibt_users">Usuaris</string>
     <string name="ibt_profile">Perfil</string>
+    <string name="rb_Admin">Administradors</string>
+    <string name="rb_User">Usuaris</string>
+    <string name="rb_All">Tots</string>
+    <string name="bt_Add_User">Afegeix</string>
+    <string name="bt_Change_User">Modifica</string>
+    <string name="bt_Delete_User">Esborra</string>
+    <string name="bt_Find_User">Cerca</string>
+    <string name="ac_Find_Users">Cerca usuari</string>
+    <string name="change_info">Canviar la informacio</string>
+    <string name="dialog_change_pass">Canviar contrassenya</string>
+    <string name="bt_save">Guardar</string>
+    <string name="bt_cancel">Cancela</string>
+    <string name="old_pass">Contrassenya antiga</string>
+    <string name="new_pass">Contrassenya nova</string>
 </resources>

@@ -7,4 +7,31 @@
     android:background="@drawable/gradient_background"
     tools:context=".UserMain">
 
+    <ImageButton
+        android:id="@+id/ibt_profile_user"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_welcome_user"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
+
+    <TextView
+        android:id="@+id/tv_ibt_profile_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ibt_profile"
+        app:layout_constraintEnd_toEndOf="@+id/ibt_profile_user"
+        app:layout_constraintStart_toStartOf="@+id/ibt_profile_user"
+        app:layout_constraintTop_toBottomOf="@+id/ibt_profile_user" />
+
+    <TextView
+        android:id="@+id/tv_welcome_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

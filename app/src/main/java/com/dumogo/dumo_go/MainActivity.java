@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -15,12 +17,13 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+
+import utilities.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,16 +35,20 @@ public class MainActivity extends AppCompatActivity {
     //TODO DELETE - private static HashMap<String, String> loginResponse;
     private static int loginResponse;
     //Dades conexio
-    private static final String ADDRESS = "192.168.20.97";
-    private static final int SERVERPORT = 7777;
+    private static final String ADDRESS = Utils.ADDRESS;
+    private static final int SERVERPORT = Utils.SERVERPORT;
     private static Socket socket;
     private static InetSocketAddress serverAddr;
     //Context
-    private Context context = this;
+    private final Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Oculta Titol Aplicació -- Més net
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+
         setContentView(R.layout.activity_main);
 
         mUser = (EditText) findViewById(R.id.et_user);
@@ -72,28 +79,44 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void goActivityUser(String type){
+    private void goActivityUser(){
+
+        //Bundle d'informacio per enviar a la següent activity
+        Bundle extras = new Bundle();
+        extras.putString("NOM", String.valueOf(mUser.getText()));
+        extras.putInt("CODI_SESSIO", getCodeFromServer());
+
         if(mIsAdmin.isChecked()){
-            Toast.makeText(MainActivity.this, "PAL ADMIN!", Toast.LENGTH_LONG).show();
+            //Intent per anar a la pantalla d'inici del Admin
+            Intent intentMainAdmin = new Intent(MainActivity.this, AdminMain.class);
+            //S'afegeixen els extras
+            //intentMainAdmin.putExtras(extras);
+            startActivity(intentMainAdmin);
         }
         else{
-            Toast.makeText(MainActivity.this, "PAL USER!", Toast.LENGTH_LONG).show();
+            //Intent per anar a la pantalla d'inici del User
+            Intent intentMainUser = new Intent(MainActivity.this, UserMain.class);
+            //S'afegeixen els extras
+            intentMainUser.putExtras(extras);
+            startActivity(intentMainUser);
         }
     }
 
     /**
-     * Creates HashMap to send to Server
-     * @return HasMap<String, String>
+     * Creates HashMap to send to Server for login
+     * @return HasMap<String, String> with login credentials + action
      */
     private HashMap<String, String> loginHash(){
         HashMap<String, String> loginHash = new HashMap<String, String>();
         if(mIsAdmin.isChecked()){
             loginHash.put("accio", "comprobar_admin");
+            loginHash.put("nom_admin", String.valueOf(mUser.getText()));
         }
         else{
             loginHash.put("accio", "comprobar_usuari");
+            loginHash.put("nom_user", String.valueOf(mUser.getText()));
         }
-        loginHash.put("nom_user", String.valueOf(mUser.getText()));
+
         loginHash.put("password", String.valueOf(mPass.getText()));
 
         return loginHash;
@@ -105,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
      * Sent onBackground some HashMap regarding login credentials
      * Server sends back login code or Fail Code
      */
+    /*
     private class ClientTask extends AsyncTask<HashMap<String, String>, Void, HashMap<String, String>>{
         //Diàleg de càrrega
         ProgressDialog progressDialog;
@@ -190,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("E/TCP Client onPost", e.getMessage());
             }
         }
-    }
+    }*/
 
     /**
      * Login Task to connect to Server check for login
@@ -220,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 //TODO Afegir timeout
                 Log.i("I/TCP Client", "Connecting...");
                 //socket = new Socket(ADDRESS, SERVERPORT);
-                Socket socket = new Socket();
+                socket = new Socket();
                 socket.connect(serverAddr, 5000);
                 Log.i("I/TCP Client", "Connected to server");
                 //envia peticion de cliente
@@ -239,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("I/TCP Client", "Received");
                 Log.i("I/TCP Client", "Code " + received);
                 //cierra conexion
-                //socket.close();
+                socket.close();
                 return received;
             }catch (UnknownHostException ex) {
                 Log.e("E/TCP  UKN", ex.getMessage());
@@ -277,22 +301,20 @@ public class MainActivity extends AppCompatActivity {
                     mPass.requestFocus();
                 }
 
-                else if(value==8000 || value==7000){
-                    Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_LONG).show();
-                    codeFromServer(value);
-                    //TODO Use code from server to pass activiy
-                    goActivityUser("Pepito");
+                else if(value==10){
+                    Toast.makeText(MainActivity.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
                 }
                 else if(value==1){
                     Toast.makeText(MainActivity.this, "Error conectant al servidor", Toast.LENGTH_LONG).show();
                 }
                 else{
-                    Toast.makeText(MainActivity.this, "Error!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_LONG).show();
+                    codeFromServer(value);
+                    goActivityUser();
                 }
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
             }
-
         }
     }
 
