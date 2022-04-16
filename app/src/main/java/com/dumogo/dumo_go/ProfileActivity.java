@@ -31,7 +31,6 @@ public class ProfileActivity extends AppCompatActivity {
     private static String nameUser;
     private static int sessionCode;
     private static boolean isAdmin;
-    private static int loginResponse;
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
     private static final int SERVERPORT = Utils.SERVERPORT;
@@ -69,7 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
         mChangeInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                //TODO Create info dialog
             }
         });
         mChangePass = (TextView) findViewById(R.id.tv_change_pass);
@@ -174,9 +173,7 @@ public class ProfileActivity extends AppCompatActivity {
             try {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                //TODO Afegir timeout
                 Log.i("I/TCP Client", "Connecting...");
-                //socket = new Socket(ADDRESS, SERVERPORT);
                 socket = new Socket();
                 socket.connect(serverAddr, 5000);
                 Log.i("I/TCP Client", "Connected to server");
@@ -261,9 +258,7 @@ public class ProfileActivity extends AppCompatActivity {
             try {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                //TODO Afegir timeout
                 Log.i("I/TCP Client", "Connecting...");
-                //socket = new Socket(ADDRESS, SERVERPORT);
                 socket = new Socket();
                 socket.connect(serverAddr, 5000);
                 Log.i("I/TCP Client", "Connected to server");

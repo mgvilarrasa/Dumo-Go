@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             //Intent per anar a la pantalla d'inici del Admin
             Intent intentMainAdmin = new Intent(MainActivity.this, AdminMain.class);
             //S'afegeixen els extras
-            //intentMainAdmin.putExtras(extras);
+            intentMainAdmin.putExtras(extras);
             startActivity(intentMainAdmin);
         }
         else{
@@ -241,9 +241,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                //TODO Afegir timeout
                 Log.i("I/TCP Client", "Connecting...");
-                //socket = new Socket(ADDRESS, SERVERPORT);
                 socket = new Socket();
                 socket.connect(serverAddr, 5000);
                 Log.i("I/TCP Client", "Connected to server");

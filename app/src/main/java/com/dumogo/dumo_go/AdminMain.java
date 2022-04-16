@@ -10,13 +10,15 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import utilities.Utils;
+
 public class AdminMain extends AppCompatActivity {
     //Variables passades en Intenten
     private static String nameUser;
     private static int sessionCode;
     private TextView mNameUser;
     private ImageButton mProfile;
-    private Button mUserManagement;
+    private ImageButton mUserManagement;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +39,29 @@ public class AdminMain extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Bundle d'informacio per enviar a la següent activity
-                Bundle extras = new Bundle();
-                extras.putString("NOM", String.valueOf(nameUser));
-                extras.putInt("CODI_SESSIO", sessionCode);
-                extras.putBoolean("IS_ADMIN", true);
+                Bundle extrasPf = new Bundle();
+                extrasPf.putString("NOM", String.valueOf(nameUser));
+                extrasPf.putInt("CODI_SESSIO", sessionCode);
+                extrasPf.putBoolean("IS_ADMIN", true);
                 //Intent per anar a la pantalla del perfil d'usuari
                 Intent intentProfile = new Intent(AdminMain.this, ProfileActivity.class);
                 //S'afegeixen els extras
-                intentProfile.putExtras(extras);
+                intentProfile.putExtras(extrasPf);
+                startActivity(intentProfile);
+            }
+        });
+        mUserManagement =(ImageButton) findViewById(R.id.ibt_users);
+        mUserManagement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Bundle d'informacio per enviar a la següent activity
+                Bundle extrasUm = new Bundle();
+                extrasUm.putString("NOM", String.valueOf(nameUser));
+                extrasUm.putInt("CODI_SESSIO", sessionCode);
+                //Intent per anar a la pantalla del perfil d'usuari
+                Intent intentProfile = new Intent(AdminMain.this, UserManagement.class);
+                //S'afegeixen els extras
+                intentProfile.putExtras(extrasUm);
                 startActivity(intentProfile);
             }
         });

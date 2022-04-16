@@ -2,6 +2,10 @@
     <string name="app_name">Dumo-Go</string>
     <string name="welcome_msg">Benvingut a Dumo-GO</string>
     <string name="hide_user">Usuari</string>
+    <string name="hide_nomCognoms">Nom i Cognoms</string>
+    <string name="hide_dni">DNI (amb lletra)</string>
+    <string name="hide_date">Data alta (YYYY-MM-DD)</string>
+    <string name="hide_mail">E-mail</string>
     <string name="hide_pass">Contrassenya</string>
     <string name="change_pass">Canviar la contrassenya</string>
     <string name="lost_pass">He perdut la contrassenya</string>
@@ -16,7 +20,6 @@
     <string name="bt_Add_User">Afegeix</string>
     <string name="bt_Change_User">Modifica</string>
     <string name="bt_Delete_User">Esborra</string>
-    <string name="bt_Find_User">Cerca</string>
     <string name="ac_Find_Users">Cerca usuari</string>
     <string name="change_info">Canviar la informacio</string>
     <string name="dialog_change_pass">Canviar contrassenya</string>
@@ -24,4 +27,6 @@
     <string name="bt_cancel">Cancela</string>
     <string name="old_pass">Contrassenya antiga</string>
     <string name="new_pass">Contrassenya nova</string>
+    <string name="dialog_add_user">Afegir usuari</string>
+    <string name="cb_au_isAdmin">Admin</string>
 </resources>

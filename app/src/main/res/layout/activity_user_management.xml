@@ -32,11 +32,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/rb_User" />
 
-            <RadioButton
-                android:id="@+id/rb_All"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rb_All" />
         </RadioGroup>
     </LinearLayout>
 
@@ -69,17 +64,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bt_Delete_User" />
-        <Button
-            android:id="@+id/bt_find_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/bt_Find_User" />
 
     </LinearLayout>
 
     <ListView
         android:id="@+id/user_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:listSelector="@android:color/darker_gray"/>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
