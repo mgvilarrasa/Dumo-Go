@@ -7,7 +7,7 @@
     <string name="hide_date">Data alta (YYYY-MM-DD)</string>
     <string name="hide_mail">E-mail</string>
     <string name="hide_pass">Contrassenya</string>
-    <string name="change_pass">Canviar la contrassenya</string>
+    <string name="change_pass"><b>Canviar la contrassenya</b></string>
     <string name="lost_pass">He perdut la contrassenya</string>
     <string name="btn_login">ENTRAR</string>
     <string name="loading">Conectant...</string>
@@ -21,7 +21,7 @@
     <string name="bt_Change_User">Modifica</string>
     <string name="bt_Delete_User">Esborra</string>
     <string name="ac_Find_Users">Cerca usuari</string>
-    <string name="change_info">Canviar la informacio</string>
+    <string name="change_info"><b>Canviar la informacio</b></string>
     <string name="dialog_change_pass">Canviar contrassenya</string>
     <string name="bt_save">Guardar</string>
     <string name="bt_cancel">Cancela</string>
@@ -29,4 +29,5 @@
     <string name="new_pass">Contrassenya nova</string>
     <string name="dialog_add_user">Afegir usuari</string>
     <string name="cb_au_isAdmin">Admin</string>
+    <string name="menu_logout">Logout</string>
 </resources>

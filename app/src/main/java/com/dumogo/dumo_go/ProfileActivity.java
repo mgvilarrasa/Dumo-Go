@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -142,7 +144,7 @@ public class ProfileActivity extends AppCompatActivity {
     private HashMap<String, String> changePassHash(){
         HashMap<String, String> changePassHash = new HashMap<String, String>();
         //TODO determinar acció
-        changePassHash.put("accio", "Canvia_password");
+        changePassHash.put("accio", "canvia_password");
         changePassHash.put("codi", String.valueOf(sessionCode));
         changePassHash.put("nom", nameUser);
 
@@ -150,10 +152,11 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Execute task to get User's info
+     * Task to get profile information from server
+     * Sent onBackground some HashMap regarding login credentials
+     * Server sends back HashMap with user's information
      */
-    //TODO Change ResultSet to ArrayList when Server is ready
-    private class GetInfoTask extends AsyncTask<HashMap<String, String>, Void, ResultSet> {
+    private class GetInfoTask extends AsyncTask<HashMap<String, String>, Void, HashMap<String, String>>{
         //Diàleg de càrrega
         ProgressDialog progressDialog;
         //Mostra barra de progrés
@@ -167,15 +170,15 @@ public class ProfileActivity extends AppCompatActivity {
             progressDialog.setMessage("Esperi...");
             progressDialog.show();
         }
-        //Conecta Server i envia dades login. Rep codi de connexio o KO
+
         @Override
-        protected ResultSet doInBackground(HashMap<String, String>... values){
+        protected HashMap<String, String> doInBackground(HashMap<String, String>... values){
             try {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
                 Log.i("I/TCP Client", "Connecting...");
-                socket = new Socket();
-                socket.connect(serverAddr, 5000);
+                //socket = new Socket(ADDRESS, SERVERPORT);
+                socket.connect(serverAddr, 1000);
                 Log.i("I/TCP Client", "Connected to server");
                 //envia peticion de cliente
                 Log.i("I/TCP Client", "Send data to server");
@@ -185,21 +188,21 @@ public class ProfileActivity extends AppCompatActivity {
                 //recibe respuesta del servidor y formatea a String
                 Log.i("I/TCP Client", "Getting data from server");
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                //Obte ResultSet
-                ResultSet received = (ResultSet) input.readObject();
+                //Obte HashMap
+                HashMap<String, String> received = (HashMap) input.readObject();
                 input.close();
                 output.close();
                 //Log
-                Log.i("I/TCP Client", "Received");
-                Log.i("I/TCP Client", "Code " + received);
+                Log.i("I/TCP Client", "Received " + received.get("login"));
+                Log.i("I/TCP Client", "Code " + received.get("codi"));
                 //cierra conexion
                 socket.close();
                 return received;
-            }catch (UnknownHostException ex) {
+            } catch (UnknownHostException ex) {
                 Log.e("E/TCP  UKN", ex.getMessage());
                 return null;
             } catch (SocketTimeoutException ex){
-                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                Log.e("E/TCP Client TIMEOUT", ex.getMessage());
                 return null;
             } catch (IOException ex) {
                 Log.e("E/TCP Client IO", ex.getMessage());
@@ -209,25 +212,44 @@ public class ProfileActivity extends AppCompatActivity {
                 return null;
             }
         }
-        //Recorre el ResultSet i obté les dades
+
         @Override
-        protected void onPostExecute(ResultSet response){
+        protected void onPostExecute(HashMap<String, String> value){
             //Tanca el dialeg de carrega
             progressDialog.dismiss();
+            //TODO change conditions for getting codes from server
             try{
-                while(!response.next()){
+                if(value.get("login").equals("ko")){
+                    if(value.get("codi").equals("0001")){
+                        Toast.makeText(ProfileActivity.this, "Usuari Erroni!", Toast.LENGTH_LONG).show();
+                    }
+                    else if(value.get("codi").equals("0002")){
+                        Toast.makeText(ProfileActivity.this, "Contrassenya Erronia!", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else if(value.get("login").equals("ok")){
                     if(isAdmin){
+                        /*TODO when server ready, get data from HashMap to put on TextViews
                         mUserName.setText(response.getString(1));
                         mName.setText(response.getString(3));
                         mMail.setText(response.getString(5));
                         mDate.setText("");
+                        */
                     }
                     else{
+                        /*TODO when server ready, get data from HashMap to put on TextViews
                         mUserName.setText(response.getString(1));
                         mName.setText(response.getString(7));
                         mMail.setText(response.getString(5));
                         mDate.setText(response.getString(4));
+                        */
                     }
+                }else if(value.get("codi").equals(20)){
+                    Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
+                    startActivity(mainActivity);
+                }
+                else{
+                    Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_LONG).show();
                 }
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
@@ -312,8 +334,9 @@ public class ProfileActivity extends AppCompatActivity {
                 else if(response==10){
                     Toast.makeText(ProfileActivity.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
                     changePassDialog.dismiss();
-                }
-                else{
+                    Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
+                    startActivity(mainActivity);
+                }else{
                     Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_LONG).show();
                     changePassDialog.dismiss();
                 }

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private static InetSocketAddress serverAddr;
     //Context
     private final Context context = this;
+    //Control sortir
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,100 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
         return loginHash;
     }
-
-    /**
-     * TODO DELETE WHEN READY
-     * Client Task to connect to Server and get message from it
-     * Sent onBackground some HashMap regarding login credentials
-     * Server sends back login code or Fail Code
-     */
-    /*
-    private class ClientTask extends AsyncTask<HashMap<String, String>, Void, HashMap<String, String>>{
-        //Diàleg de càrrega
-        ProgressDialog progressDialog;
-        //Mostra barra de progrés
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setTitle("Conectant al servidor");
-            progressDialog.setMessage("Esperi...");
-            progressDialog.show();
-        }
-        //Conecta Server i envia dades login. Rep codi de connexio o KO
-        @Override
-        protected HashMap<String, String> doInBackground(HashMap<String, String>... values){
-            try {
-                //Se conecta al servidor
-                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                Log.i("I/TCP Client", "Connecting...");
-                //socket = new Socket(ADDRESS, SERVERPORT);
-                socket.connect(serverAddr, 1000);
-                Log.i("I/TCP Client", "Connected to server");
-                //envia peticion de cliente
-                Log.i("I/TCP Client", "Send data to server");
-                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-                HashMap<String, String> request = values[0];
-                output.writeObject(request);
-                //recibe respuesta del servidor y formatea a String
-                Log.i("I/TCP Client", "Getting data from server");
-                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                //Obte HashMap
-                HashMap<String, String> received = (HashMap) input.readObject();
-                input.close();
-                output.close();
-                //Log
-                Log.i("I/TCP Client", "Received " + received.get("login"));
-                Log.i("I/TCP Client", "Code " + received.get("codi"));
-                //cierra conexion
-                //socket.close();
-                return received;
-            } catch (UnknownHostException ex) {
-                Log.e("E/TCP  UKN", ex.getMessage());
-                return null;
-            } catch (SocketTimeoutException ex){
-                Log.e("E/TCP Client TIMEOUT", ex.getMessage());
-                return null;
-            } catch (IOException ex) {
-                Log.e("E/TCP Client IO", ex.getMessage());
-                return null;
-            } catch (ClassNotFoundException ex) {
-                Log.e("E/TCP Client CNF", ex.getMessage());
-                return null;
-            }
-        }
-        //Si login OK, enmagatxema la dada
-        //Si dada OK, mostra Toast
-        @Override
-        protected void onPostExecute(HashMap<String, String> value){
-            //Tanca el dialeg de carrega
-            progressDialog.dismiss();
-            try{
-                if(value.get("login").equals("ko")){
-                    if(value.get("codi").equals("0001")){
-                        Toast.makeText(MainActivity.this, "Usuari Erroni!", Toast.LENGTH_LONG).show();
-                        mUser.requestFocus();
-                    }
-                    else if(value.get("codi").equals("0002")){
-                        Toast.makeText(MainActivity.this, "Contrassenya Erronia!", Toast.LENGTH_LONG).show();
-                        mPass.requestFocus();
-                    }
-                }
-                else if(value.get("login").equals("ok")){
-                    Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_LONG).show();
-                    //codeFromServer(value);
-                    goActivityUser(value.get("tipus"));
-                }
-                else{
-                    Toast.makeText(MainActivity.this, "Error!", Toast.LENGTH_LONG).show();
-                }
-            }catch (Exception e){
-                Log.e("E/TCP Client onPost", e.getMessage());
-            }
-        }
-    }*/
 
     /**
      * Login Task to connect to Server check for login
@@ -323,5 +233,24 @@ public class MainActivity extends AppCompatActivity {
     //Get loginCode
     private int getCodeFromServer(){
         return loginResponse;
+    }
+    //Control sortir de l'aplicacio
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            finish();
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Click enrere altre cop per sortir", Toast.LENGTH_SHORT).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+        return;
     }
 }

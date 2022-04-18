@@ -8,9 +8,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -279,7 +281,7 @@ public class UserManagement extends AppCompatActivity {
             progressDialog.setMessage("Esperi...");
             progressDialog.show();
         }
-        //Conecta Server i envia dades login. Rep codi de connexio o KO
+
         @Override
         protected Integer doInBackground(HashMap<String, String>... values){
             try {
@@ -321,7 +323,7 @@ public class UserManagement extends AppCompatActivity {
                 return null;
             }
         }
-        //Recorre el ResultSet i obté les dades
+
         @Override
         protected void onPostExecute(Integer response){
             //Tanca el dialeg de carrega
@@ -339,6 +341,8 @@ public class UserManagement extends AppCompatActivity {
                 else if(response==10){
                     Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
                     addUserDialog.dismiss();
+                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+                    startActivity(mainActivity);
                 }
                 else if(response==1010 || response==2010){
                     Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_LONG).show();
@@ -355,8 +359,7 @@ public class UserManagement extends AppCompatActivity {
                 }else if(response==0){
                     Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_LONG).show();
                     addUserDialog.dismiss();
-                }
-                else{
+                }else{
                     Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_LONG).show();
                     addUserDialog.dismiss();
                 }
@@ -446,8 +449,10 @@ public class UserManagement extends AppCompatActivity {
                     Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_LONG).show();
                 }else if(response==0){
                     Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_LONG).show();
-                }
-                else{
+                }else if(response==20){
+                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+                    startActivity(mainActivity);
+                }else{
                     Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_LONG).show();
                 }
             }catch (Exception e){
