@@ -10,6 +10,10 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
 
+/**
+ * author Marçal González
+ * fragment to show date picker as calendar
+ */
 public class DatePickerFragment extends DialogFragment {
 
     private DatePickerDialog.OnDateSetListener listener;

@@ -29,6 +29,9 @@ import java.util.HashMap;
 
 import utilities.Utils;
 
+/**
+ * author Marçal González
+ */
 public class UserMain extends AppCompatActivity {
     //Variables passades en Intenten
     private static String nameUser;
@@ -78,11 +81,13 @@ public class UserMain extends AppCompatActivity {
             }
         });
     }
+    //Menu superior per tenir opcio de logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.admin_main_menu, menu);
         return true;
     }
+    //Opcio fer logout
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==R.id.menu_settings){
@@ -164,11 +169,13 @@ public class UserMain extends AppCompatActivity {
             progressDialog.dismiss();
             try{
                 if(response==20){
-                    Toast.makeText(UserMain.this, "Sortint...", Toast.LENGTH_LONG).show();
+                    Intent mainActivity = new Intent(UserMain.this, MainActivity.class);
+                    startActivity(mainActivity);
+                }else if(response==1){
+                    Toast.makeText(UserMain.this, "Error conectant amb el servidor!", Toast.LENGTH_LONG).show();
                     Intent mainActivity = new Intent(UserMain.this, MainActivity.class);
                     startActivity(mainActivity);
                 }else{
-                    Toast.makeText(UserMain.this, "Error!", Toast.LENGTH_LONG).show();
                     Intent mainActivity = new Intent(UserMain.this, MainActivity.class);
                     startActivity(mainActivity);
                 }
@@ -178,11 +185,17 @@ public class UserMain extends AppCompatActivity {
         }
     }
 
-    //Control sortir de l'aplicacio
+    /**
+     * BackPressed. Twice to logout. first time, it will show a Toast
+     */
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            finish();
+            HashMap<String, String> hashLogout = new HashMap<>();
+            hashLogout.put("codi", String.valueOf(sessionCode));
+            hashLogout.put("accio", "tancar_sessio");
+            LogOutTask logOutTask = new LogOutTask();
+            logOutTask.execute(hashLogout);
         }
 
         this.doubleBackToExitPressedOnce = true;

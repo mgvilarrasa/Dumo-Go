@@ -30,6 +30,9 @@ import java.util.HashMap;
 
 import utilities.Utils;
 
+/**
+ * author Marçal González
+ */
 public class AdminMain extends AppCompatActivity {
     //Variables passades en Intenten
     private static String nameUser;
@@ -78,6 +81,7 @@ public class AdminMain extends AppCompatActivity {
                 startActivity(intentProfile);
             }
         });
+        //Boto administracio usuaris
         mUserManagement =(ImageButton) findViewById(R.id.ibt_users);
         mUserManagement.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,12 +99,13 @@ public class AdminMain extends AppCompatActivity {
         });
     }
 
-    //Menu superior
+    //Menu superior per tenir opcio de logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.admin_main_menu, menu);
         return true;
     }
+    //Opcio fer logout
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==R.id.menu_settings){
@@ -182,11 +187,13 @@ public class AdminMain extends AppCompatActivity {
             progressDialog.dismiss();
             try{
                 if(response==20){
-                    Toast.makeText(AdminMain.this, "Sortint...", Toast.LENGTH_LONG).show();
+                    Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
+                    startActivity(mainActivity);
+                }else if(response==1){
+                    Toast.makeText(AdminMain.this, "Error conectant amb el servidor!", Toast.LENGTH_LONG).show();
                     Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
                     startActivity(mainActivity);
                 }else{
-                    Toast.makeText(AdminMain.this, "Error!", Toast.LENGTH_LONG).show();
                     Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
                     startActivity(mainActivity);
                 }
@@ -196,6 +203,9 @@ public class AdminMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * BackPressed. Twice to logout. first time, it will show a Toast
+     */
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {

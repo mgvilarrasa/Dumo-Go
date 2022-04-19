@@ -28,6 +28,9 @@ import java.util.HashMap;
 
 import utilities.Utils;
 
+/**
+ * author Marçal González
+ */
 public class ProfileActivity extends AppCompatActivity {
     //Variables d'us
     private static String nameUser;
@@ -67,6 +70,7 @@ public class ProfileActivity extends AppCompatActivity {
         mMail = (TextView) findViewById(R.id.tv_mail_adress);
         mDate = (TextView) findViewById(R.id.tv_date);
         mChangeInfo = (TextView) findViewById(R.id.tv_change_info);
+        //Boto canviar dades
         mChangeInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,6 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         mChangePass = (TextView) findViewById(R.id.tv_change_pass);
+        //Boto canviar pass
         mChangePass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +89,9 @@ public class ProfileActivity extends AppCompatActivity {
         loadInfo();
     }
 
+    /**
+     * Dialog to change password
+     */
     private void changePassDialog(){
         //Crea el diàleg de canvi de contrassenya
         changePassDialog = new Dialog(context);
@@ -121,6 +129,9 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Method to call the task to load user's info
+     */
     private void loadInfo(){
         //Executa connexió al server
         GetInfoTask client = new GetInfoTask();
@@ -128,7 +139,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Put the in the HashMap to send to server
+     * Put the information in the HashMap to send to server
      * @return HashMap with the information required from server
      */
     private HashMap<String, String> infoHash(){
@@ -140,7 +151,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         return loginHash;
     }
-
+    /**
+     * Put the information in the HashMap to send to server
+     * @return HashMap with the information required from server
+     */
     private HashMap<String, String> changePassHash(){
         HashMap<String, String> changePassHash = new HashMap<String, String>();
         //TODO determinar acció

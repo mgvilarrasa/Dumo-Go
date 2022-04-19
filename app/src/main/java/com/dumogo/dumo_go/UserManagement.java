@@ -38,6 +38,9 @@ import java.util.HashMap;
 import utilities.DatePickerFragment;
 import utilities.Utils;
 
+/**
+ * author Marçal González
+ */
 public class UserManagement extends AppCompatActivity {
     //Variables usuari actiu
     private static String nameUser;
@@ -86,6 +89,7 @@ public class UserManagement extends AppCompatActivity {
         mUsersRb.setChecked(true);
         //Omple l'array d'usuaris per la cerca
         listUsers = listUsers();
+        //Adapter usuaris mostrats
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, listUsers);
         mUserAc = (AutoCompleteTextView) findViewById(R.id.ac_users);
         //Afegeix els possibles cercadors
@@ -93,18 +97,21 @@ public class UserManagement extends AppCompatActivity {
         mUserList = (ListView) findViewById(R.id.user_list);
         //Afegeix elements a la llista
         mUserList.setAdapter(adapter);
+        //Obte l'usuari seleccionat
         mUserList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 userSelected = adapter.getItem(position);
             }
         });
+        //Boto afegir usuari
         mAddUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addUserDialog();
             }
         });
+        //Boto eliminar usuari
         mDeleteUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +122,7 @@ public class UserManagement extends AppCompatActivity {
 
     //TODO delete when final list is ready
     private static final String[] USERS = new String[]{
-            "Pep25", "Oscar39", "Marc45", "Carmelo", "Mgv11"
+            "Pep25", "Oscar39", "Marc45", "Carmelo", "Mgv11", "mgv"
     };
 
     //TODO when server is ready, complete function
@@ -124,6 +131,9 @@ public class UserManagement extends AppCompatActivity {
         return USERS;
     }
 
+    /**
+     * New user dialog
+     */
     private void addUserDialog() {
         //Crea el diàleg de canvi de contrassenya
         addUserDialog = new Dialog(context);
@@ -188,6 +198,9 @@ public class UserManagement extends AppCompatActivity {
         });
     }
 
+    /**
+     * Delete user dialog
+     */
     private void deleteUserDialog(){
         if(userSelected != null){
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -232,7 +245,7 @@ public class UserManagement extends AppCompatActivity {
             addUserHash.put("nom_admin", userName);
         } else {
             addUserHash.put("accio", "afegir_usuari");
-            addUserHash.put("nom_user", userName);
+            addUserHash.put("user_name", userName);
         }
         addUserHash.put("codi", String.valueOf(sessionCode));
         addUserHash.put("password", pass);
@@ -257,7 +270,7 @@ public class UserManagement extends AppCompatActivity {
             deleteUserHash.put("nom_admin", userSelected);
         } else {
             deleteUserHash.put("accio", "esborrar_usuari");
-            deleteUserHash.put("nom_user", userSelected);
+            deleteUserHash.put("user_name", userSelected);
         }
         deleteUserHash.put("codi", String.valueOf(sessionCode));
 
@@ -444,14 +457,13 @@ public class UserManagement extends AppCompatActivity {
                 }
                 else if(response==10){
                     Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
+                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+                    startActivity(mainActivity);
                 }
                 else if(response==3010 || response==4010){
                     Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_LONG).show();
                 }else if(response==0){
                     Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_LONG).show();
-                }else if(response==20){
-                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
-                    startActivity(mainActivity);
                 }else{
                     Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_LONG).show();
                 }

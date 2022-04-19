@@ -27,6 +27,9 @@ import java.util.HashMap;
 
 import utilities.Utils;
 
+/**
+ * author Marçal González
+ */
 public class MainActivity extends AppCompatActivity {
 
     //Variables view
@@ -83,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Depending on type of user, starts UserMain or AdminMain activity
+     */
     private void goActivityUser(){
 
         //Bundle d'informacio per enviar a la següent activity
@@ -118,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             loginHash.put("accio", "comprobar_usuari");
-            loginHash.put("nom_user", String.valueOf(mUser.getText()));
+            loginHash.put("user_name", String.valueOf(mUser.getText()));
         }
 
         loginHash.put("password", String.valueOf(mPass.getText()));
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Login Task to connect to Server check for login
      * Sent onBackground some HashMap regarding login credentials
-     * Server sends back OK code or Fail Code
+     * Server sends back session code or failure code
      */
     private class LoginTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
         //Diàleg de càrrega
@@ -234,7 +240,9 @@ public class MainActivity extends AppCompatActivity {
     private int getCodeFromServer(){
         return loginResponse;
     }
-    //Control sortir de l'aplicacio
+    /**
+     * BackPressed. Twice to exit app. first time, it will show a Toast
+     */
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
