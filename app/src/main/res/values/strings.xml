@@ -2,11 +2,15 @@
     <string name="app_name">Dumo-Go</string>
     <string name="welcome_msg">Benvingut a Dumo-GO</string>
     <string name="hide_user">Usuari</string>
-    <string name="hide_nomCognoms">Nom i Cognoms</string>
+    <string name="hide_nom">Nom</string>
+    <string name="hide_cognoms">Cognoms</string>
     <string name="hide_dni">DNI (amb lletra)</string>
     <string name="hide_date">Data alta (YYYY-MM-DD)</string>
     <string name="hide_mail">E-mail</string>
     <string name="hide_pass">Contrassenya</string>
+    <string name="hide_bith_date">Data naixement (YYYY-MM-DD)</string>
+    <string name="hide_address">Direccio</string>
+    <string name="hide_country">Pais</string>
     <string name="change_pass"><b>Canviar la contrassenya</b></string>
     <string name="lost_pass">He perdut la contrassenya</string>
     <string name="btn_login">ENTRAR</string>

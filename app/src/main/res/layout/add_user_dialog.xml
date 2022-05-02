@@ -37,11 +37,19 @@
             android:inputType="textPassword" />
 
         <EditText
-            android:id="@+id/et_au_nomCognoms"
+            android:id="@+id/et_au_nom"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:ems="10"
-            android:hint="@string/hide_nomCognoms"
+            android:hint="@string/hide_nom"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_au_cognoms"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:hint="@string/hide_cognoms"
             android:inputType="textPersonName" />
 
         <EditText
@@ -50,6 +58,30 @@
             android:layout_height="48dp"
             android:ems="10"
             android:hint="@string/hide_dni"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_au_data_naixement"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:hint="@string/hide_bith_date"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_au_direccio"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:hint="@string/hide_address"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_au_pais"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:hint="@string/hide_country"
             android:inputType="textPersonName" />
 
         <EditText

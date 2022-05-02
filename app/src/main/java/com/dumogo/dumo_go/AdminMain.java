@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
+import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -109,11 +110,14 @@ public class AdminMain extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==R.id.menu_settings){
+            //Crea hash de logout
             HashMap<String, String> hashLogout = new HashMap<>();
             hashLogout.put("codi", String.valueOf(sessionCode));
             hashLogout.put("accio", "tancar_sessio");
-            LogOutTask logOutTask = new LogOutTask();
-            logOutTask.execute(hashLogout);
+            //Crida al server
+            ServerCalls serverCalls = new ServerCalls(AdminMain.this);
+            int response = serverCalls.hastToInt(hashLogout);
+            exitProgram(response);
         }
         else{
             return super.onContextItemSelected(item);
@@ -122,84 +126,24 @@ public class AdminMain extends AppCompatActivity {
     }
 
     /**
-     * Execute task to logout
+     * Exit program using logout
+     * @param response
      */
-    private class LogOutTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
-        //Diàleg de càrrega
-        ProgressDialog progressDialog;
-        //Mostra barra de progrés
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setTitle("Conectant al servidor");
-            progressDialog.setMessage("Esperi...");
-            progressDialog.show();
-        }
-
-        @Override
-        protected Integer doInBackground(HashMap<String, String>... values){
-            try {
-                //Se conecta al servidor
-                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                Log.i("I/TCP Client", "Connecting...");
-                socket = new Socket();
-                socket.connect(serverAddr, 5000);
-                Log.i("I/TCP Client", "Connected to server");
-                //envia peticion de cliente
-                Log.i("I/TCP Client", "Send data to server");
-                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-                HashMap<String, String> request = values[0];
-                output.writeObject(request);
-                //recibe respuesta del servidor y formatea a String
-                Log.i("I/TCP Client", "Getting data from server");
-                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                //Obte el codi
-                int received = (Integer) input.readObject();
-                input.close();
-                output.close();
-                //Log
-                Log.i("I/TCP Client", "Received");
-                Log.i("I/TCP Client", "Code " + received);
-                //cierra conexion
-                socket.close();
-                return received;
-            }catch (UnknownHostException ex) {
-                Log.e("E/TCP  UKN", ex.getMessage());
-                return null;
-            } catch (SocketTimeoutException ex){
-                Log.e("E/TCP Client TimeOut", ex.getMessage());
-                return 1;
-            } catch (IOException ex) {
-                Log.e("E/TCP Client IO", ex.getMessage());
-                return null;
-            } catch (ClassNotFoundException ex) {
-                Log.e("E/TCP Client CNF", ex.getMessage());
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Integer response){
-            //Tanca el dialeg de carrega
-            progressDialog.dismiss();
-            try{
-                if(response==20){
-                    Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }else if(response==1){
-                    Toast.makeText(AdminMain.this, "Error conectant amb el servidor!", Toast.LENGTH_LONG).show();
-                    Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }else{
-                    Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }
-            }catch (Exception e){
-                Log.e("E/TCP Client onPost", e.getMessage());
-            }
+    private void exitProgram(int response){
+        if(response==20){
+            Toast.makeText(AdminMain.this, "Sortint...", Toast.LENGTH_SHORT).show();
+            Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
+        }else if(response==1){
+            Toast.makeText(AdminMain.this, "Error conectant amb el servidor!", Toast.LENGTH_SHORT).show();
+            Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
+        }else{
+            Intent mainActivity = new Intent(AdminMain.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
         }
     }
 
@@ -209,11 +153,8 @@ public class AdminMain extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            HashMap<String, String> hashLogout = new HashMap<>();
-            hashLogout.put("codi", String.valueOf(sessionCode));
-            hashLogout.put("accio", "tancar_sessio");
-            LogOutTask logOutTask = new LogOutTask();
-            logOutTask.execute(hashLogout);
+            super.onBackPressed();
+            return;
         }
 
         this.doubleBackToExitPressedOnce = true;

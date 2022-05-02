@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -36,6 +35,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import utilities.DatePickerFragment;
+import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -63,13 +63,20 @@ public class UserManagement extends AppCompatActivity {
     private Context context = this;
     //Texts add user
     private String userName;
-    private String nameLastName;
+    private String nom;
+    private String lastName;
+    private String birthDate;
+    private String address;
+    private String country;
     private String dni;
     private String pass;
     private String date;
     private String email;
     //Diàlegs
     private Dialog addUserDialog;
+    //Crides server
+    private ServerCalls serverCalls;
+    private int responseServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +88,8 @@ public class UserManagement extends AppCompatActivity {
             nameUser = extras.getString("NOM");
             sessionCode = extras.getInt("CODI_SESSIO");
         }
+        //Crides al servidor
+        serverCalls = new ServerCalls(UserManagement.this);
         //Inicialitza view variables
         mAddUser = (Button) findViewById(R.id.bt_add_user);
         mDeleteUser = (Button) findViewById(R.id.bt_delete_user);
@@ -141,9 +150,13 @@ public class UserManagement extends AppCompatActivity {
         //Camps de text
         EditText mUserName = (EditText) addUserDialog.findViewById(R.id.et_au_userName);
         EditText mPass = (EditText) addUserDialog.findViewById(R.id.et_au_pass);
-        EditText mNomCognom = (EditText) addUserDialog.findViewById(R.id.et_au_nomCognoms);
+        EditText mNom = (EditText) addUserDialog.findViewById(R.id.et_au_nom);
+        EditText mCognoms = (EditText) addUserDialog.findViewById(R.id.et_au_cognoms);
         EditText mDni = (EditText) addUserDialog.findViewById(R.id.et_au_dni);
         EditText mDate = (EditText) addUserDialog.findViewById(R.id.et_au_dataAlta);
+        EditText mBirthDate = (EditText) addUserDialog.findViewById(R.id.et_au_data_naixement);
+        EditText mAddress = (EditText) addUserDialog.findViewById(R.id.et_au_direccio);
+        EditText mCountry = (EditText) addUserDialog.findViewById(R.id.et_au_pais);
         CheckBox mIsAdmin = (CheckBox) addUserDialog.findViewById(R.id.cb_au_isAdmin);
         mDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +168,22 @@ public class UserManagement extends AppCompatActivity {
                         DecimalFormat mFormat = new DecimalFormat("00");
                         final String selectedDate = year + "-" + mFormat.format(Double.valueOf(month + 1)) + "-" + mFormat.format(Double.valueOf(day));
                         mDate.setText(selectedDate);
+                    }
+                });
+
+                newFragment.show(getSupportFragmentManager(), "datePicker");
+            }
+        });
+        mBirthDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        //Popula la data al editText
+                        DecimalFormat mFormat = new DecimalFormat("00");
+                        final String selectedDate = year + "-" + mFormat.format(Double.valueOf(month + 1)) + "-" + mFormat.format(Double.valueOf(day));
+                        mBirthDate.setText(selectedDate);
                     }
                 });
 
@@ -176,20 +205,30 @@ public class UserManagement extends AppCompatActivity {
         addUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mUserName.getText().toString().trim().length() > 0 && mPass.getText().toString().trim().length() > 0 && mNomCognom.getText().toString().trim().length() > 0
-                        && mDni.getText().toString().trim().length() > 0 && mDate.getText().toString().trim().length() > 0 && mMail.getText().toString().trim().length() > 0) {
+                if (mUserName.getText().toString().trim().length() > 0 && mPass.getText().toString().trim().length() > 0 && mNom.getText().toString().trim().length() > 0
+                        && mDni.getText().toString().trim().length() > 0 && mDate.getText().toString().trim().length() > 0 && mMail.getText().toString().trim().length() > 0
+                        && mCognoms.getText().toString().trim().length() > 0 && mAddress.getText().toString().trim().length() > 0 && mCountry.getText().toString().trim().length() > 0
+                        && mBirthDate.getText().toString().trim().length() > 0) {
                     userName = mUserName.getText().toString();
-                    nameLastName = mNomCognom.getText().toString();
+                    nom = mNom.getText().toString();
                     dni = mDni.getText().toString();
                     pass = mPass.getText().toString();
                     date = mDate.getText().toString();
                     email = mMail.getText().toString();
-                    AddUserTask addUserTask = new AddUserTask();
+                    country = mCountry.getText().toString();
+                    lastName = mCognoms.getText().toString();
+                    address = mAddress.getText().toString();
+                    birthDate = mBirthDate.getText().toString();
+                    //TODO Clean AddUserTask addUserTask = new AddUserTask();
                     if(mIsAdmin.isChecked()) {
-                        addUserTask.execute(addUserHash(true));
+                        responseServer = serverCalls.hastToInt(addUserHash(true));
+                        addUserResponse(responseServer);
+                        //TODO Clean addUserTask.execute(addUserHash(true));
                     }
                     else{
-                        addUserTask.execute(addUserHash(false));
+                        responseServer = serverCalls.hastToInt(addUserHash(false));
+                        addUserResponse(responseServer);
+                        //TODO Clean addUserTask.execute(addUserHash(false));
                     }
                 } else {
                     Toast.makeText(UserManagement.this, "Introduir dades!", Toast.LENGTH_LONG).show();
@@ -209,12 +248,16 @@ public class UserManagement extends AppCompatActivity {
             builder.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    DeleteUserTask deleteUserTask = new DeleteUserTask();
+                    //TODO Clean DeleteUserTask deleteUserTask = new DeleteUserTask();
                     if(mAdminsRb.isChecked()){
-                        deleteUserTask.execute(deleteUserHash(true));
+                        responseServer = serverCalls.hastToInt(deleteUserHash(true));
+                        deleteUserResponse(responseServer);
+                        //TODO Clean deleteUserTask.execute(deleteUserHash(true));
                     }
                     else{
-                        deleteUserTask.execute(deleteUserHash(false));
+                        responseServer = serverCalls.hastToInt(deleteUserHash(false));
+                        deleteUserResponse(responseServer);
+                        //TODO Clean deleteUserTask.execute(deleteUserHash(false));
                     }
                 }
             });
@@ -234,6 +277,69 @@ public class UserManagement extends AppCompatActivity {
     }
 
     /**
+     * Manages response from server when adding user
+     * @param response
+     */
+    private void addUserResponse(int response){
+        if(response==1000 || response == 2000) {
+            Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_SHORT).show();
+            addUserDialog.dismiss();
+        }
+        else if(response==1){
+            Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
+            addUserDialog.dismiss();
+        }
+        else if(response==10){
+            Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
+            addUserDialog.dismiss();
+            Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
+        }
+        else if(response==1010 || response==2010){
+            Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_SHORT).show();
+        }else if(response==1020 || response==2020){
+            Toast.makeText(UserManagement.this, "Contrassenya no vàlida!", Toast.LENGTH_SHORT).show();
+        }else if(response==1030 || response==2030){
+            Toast.makeText(UserManagement.this, "Format DNI incorrecte!", Toast.LENGTH_SHORT).show();
+        }else if(response==1031 || response==2031){
+            Toast.makeText(UserManagement.this, "DNI repetit!", Toast.LENGTH_SHORT).show();
+        }else if(response==1040 || response==2040){
+            Toast.makeText(UserManagement.this, "Email incorrecte!", Toast.LENGTH_SHORT).show();
+        }else if(response==1041 || response==2041){
+            Toast.makeText(UserManagement.this, "Email ja existeix!", Toast.LENGTH_SHORT).show();
+        }else if(response==0){
+            Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
+            addUserDialog.dismiss();
+        }else{
+            Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
+            addUserDialog.dismiss();
+        }
+    }
+
+    private void deleteUserResponse(int response){
+        if(response==3000 || response == 4000) {
+            Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_SHORT).show();
+        }
+        else if(response==1){
+            Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
+        }
+        else if(response==10){
+            Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
+            Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
+        }
+        else if(response==3010 || response==4010){
+            Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_SHORT).show();
+        }else if(response==0){
+            Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * HashMap for adding user/admin
      * @param isAdmin
      * @return HashMap fulfilled
@@ -249,11 +355,15 @@ public class UserManagement extends AppCompatActivity {
         }
         addUserHash.put("codi", String.valueOf(sessionCode));
         addUserHash.put("password", pass);
-        addUserHash.put("nom_cognoms", nameLastName);
+        addUserHash.put("nom", nom);
         addUserHash.put("dni", dni);
         addUserHash.put("data_alta", date);
         addUserHash.put("correu", email);
         addUserHash.put("admin_alta", nameUser);
+        addUserHash.put("cognoms", lastName);
+        addUserHash.put("data_naixement", birthDate);
+        addUserHash.put("pais", country);
+        addUserHash.put("direccio", address);
 
         return addUserHash;
     }
@@ -277,6 +387,8 @@ public class UserManagement extends AppCompatActivity {
         return deleteUserHash;
     }
 
+
+    //TODO CLEAN TASKS
     /**
      * Execute task to add User
      */
