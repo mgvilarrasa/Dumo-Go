@@ -3,22 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/drawable/gradient_background.xml" value="0.33" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_admin_main.xml" value="0.29375" />
         <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_main.xml" value="0.35260416666666666" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_profile.xml" value="0.358695652173913" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_user_main.xml" value="0.29375" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/activity_user_management.xml" value="0.29375" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/add_user_dialog.xml" value="0.36666666666666664" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/change_pass_dialog.xml" value="0.358695652173913" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/fragment_change_pass_dialog.xml" value="0.358695652173913" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/layout/loading_layout.xml" value="0.29375" />
-        <entry key="..\:/Android_Workspace/dumo_go/app/src/main/res/menu/admin_main_menu.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/drawable/gradient_background.xml" value="0.2435" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_admin_main.xml" value="0.24547101449275363" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_main.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_profile.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_user_main.xml" value="0.24547101449275363" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/activity_user_management.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/change_pass_dialog.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/mgvil/StudioProjects/Dumo-Go/app/src/main/res/layout/loading_layout.xml" value="0.24547101449275363" />
       </map>
     </option>

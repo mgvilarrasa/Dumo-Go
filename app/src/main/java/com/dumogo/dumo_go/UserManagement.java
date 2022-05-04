@@ -74,9 +74,6 @@ public class UserManagement extends AppCompatActivity {
     private String email;
     //Diàlegs
     private Dialog addUserDialog;
-    //Crides server
-    private ServerCalls serverCalls;
-    private int responseServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +85,6 @@ public class UserManagement extends AppCompatActivity {
             nameUser = extras.getString("NOM");
             sessionCode = extras.getInt("CODI_SESSIO");
         }
-        //Crides al servidor
-        serverCalls = new ServerCalls(UserManagement.this);
         //Inicialitza view variables
         mAddUser = (Button) findViewById(R.id.bt_add_user);
         mDeleteUser = (Button) findViewById(R.id.bt_delete_user);
@@ -219,16 +214,12 @@ public class UserManagement extends AppCompatActivity {
                     lastName = mCognoms.getText().toString();
                     address = mAddress.getText().toString();
                     birthDate = mBirthDate.getText().toString();
-                    //TODO Clean AddUserTask addUserTask = new AddUserTask();
+                    AddUserTask addUserTask = new AddUserTask();
                     if(mIsAdmin.isChecked()) {
-                        responseServer = serverCalls.hastToInt(addUserHash(true));
-                        addUserResponse(responseServer);
-                        //TODO Clean addUserTask.execute(addUserHash(true));
+                        addUserTask.execute(addUserHash(true));
                     }
                     else{
-                        responseServer = serverCalls.hastToInt(addUserHash(false));
-                        addUserResponse(responseServer);
-                        //TODO Clean addUserTask.execute(addUserHash(false));
+                        addUserTask.execute(addUserHash(false));
                     }
                 } else {
                     Toast.makeText(UserManagement.this, "Introduir dades!", Toast.LENGTH_LONG).show();
@@ -248,16 +239,12 @@ public class UserManagement extends AppCompatActivity {
             builder.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    //TODO Clean DeleteUserTask deleteUserTask = new DeleteUserTask();
+                    DeleteUserTask deleteUserTask = new DeleteUserTask();
                     if(mAdminsRb.isChecked()){
-                        responseServer = serverCalls.hastToInt(deleteUserHash(true));
-                        deleteUserResponse(responseServer);
-                        //TODO Clean deleteUserTask.execute(deleteUserHash(true));
+                        deleteUserTask.execute(deleteUserHash(true));
                     }
                     else{
-                        responseServer = serverCalls.hastToInt(deleteUserHash(false));
-                        deleteUserResponse(responseServer);
-                        //TODO Clean deleteUserTask.execute(deleteUserHash(false));
+                        deleteUserTask.execute(deleteUserHash(false));
                     }
                 }
             });
@@ -273,69 +260,6 @@ public class UserManagement extends AppCompatActivity {
         }
         else{
             Toast.makeText(UserManagement.this, "Usuari no seleccionat", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Manages response from server when adding user
-     * @param response
-     */
-    private void addUserResponse(int response){
-        if(response==1000 || response == 2000) {
-            Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_SHORT).show();
-            addUserDialog.dismiss();
-        }
-        else if(response==1){
-            Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
-            addUserDialog.dismiss();
-        }
-        else if(response==10){
-            Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-            addUserDialog.dismiss();
-            Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
-            startActivity(mainActivity);
-            finish();
-        }
-        else if(response==1010 || response==2010){
-            Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_SHORT).show();
-        }else if(response==1020 || response==2020){
-            Toast.makeText(UserManagement.this, "Contrassenya no vàlida!", Toast.LENGTH_SHORT).show();
-        }else if(response==1030 || response==2030){
-            Toast.makeText(UserManagement.this, "Format DNI incorrecte!", Toast.LENGTH_SHORT).show();
-        }else if(response==1031 || response==2031){
-            Toast.makeText(UserManagement.this, "DNI repetit!", Toast.LENGTH_SHORT).show();
-        }else if(response==1040 || response==2040){
-            Toast.makeText(UserManagement.this, "Email incorrecte!", Toast.LENGTH_SHORT).show();
-        }else if(response==1041 || response==2041){
-            Toast.makeText(UserManagement.this, "Email ja existeix!", Toast.LENGTH_SHORT).show();
-        }else if(response==0){
-            Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
-            addUserDialog.dismiss();
-        }else{
-            Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
-            addUserDialog.dismiss();
-        }
-    }
-
-    private void deleteUserResponse(int response){
-        if(response==3000 || response == 4000) {
-            Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_SHORT).show();
-        }
-        else if(response==1){
-            Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
-        }
-        else if(response==10){
-            Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-            Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
-            startActivity(mainActivity);
-            finish();
-        }
-        else if(response==3010 || response==4010){
-            Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_SHORT).show();
-        }else if(response==0){
-            Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -387,8 +311,6 @@ public class UserManagement extends AppCompatActivity {
         return deleteUserHash;
     }
 
-
-    //TODO CLEAN TASKS
     /**
      * Execute task to add User
      */

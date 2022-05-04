@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class ServerCalls {
     //Context app
@@ -109,7 +110,7 @@ public class ServerCalls {
                 integerResponse = response;
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
-                integerResponse = -1;
+                integerResponse = 1;
             }
         }
     }
@@ -150,7 +151,7 @@ public class ServerCalls {
                 Log.i("I/TCP Client", "Getting data from server");
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 //Obte ResultSet
-                HashMap<String, String> received = (HashMap<String, String>) input.readObject();
+                HashMap<String, String> received = (HashMap) input.readObject();
                 input.close();
                 output.close();
                 //Log

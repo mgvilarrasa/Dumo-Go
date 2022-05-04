@@ -2,19 +2,23 @@ package com.dumogo.dumo_go;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.effect.Effect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,9 +27,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.sql.ResultSet;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
+import model.User;
+import utilities.DatePickerFragment;
+import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -44,14 +51,25 @@ public class ProfileActivity extends AppCompatActivity {
     //Context
     private final Context context = this;
     //Widgets pantalla
+    private TextView mMemberNum;
     private TextView mUserName;
-    private TextView mName;
-    private TextView mMail;
-    private TextView mDate;
-    private TextView mChangePass;
-    private TextView mChangeInfo;
+    private TextView mCreateDate;
+    private EditText mName;
+    private EditText mLastName;
+    private EditText mBirthDate;
+    private EditText mAddress;
+    private EditText mCountry;
+    private EditText mPhone;
+    private EditText mMail;
+    private Button mChangeInfo;
+    private Button mChangePass;
+    //Resposta servidor
+    private HashMap<String, String> responseServer;
+
     //Diàlegs
     private Dialog changePassDialog;
+    private EditText mOldPass;
+    private EditText mNewPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,28 +83,51 @@ public class ProfileActivity extends AppCompatActivity {
             isAdmin = extras.getBoolean("IS_ADMIN");
         }
         //inicialitza widgets de pantalla
-        mUserName = (TextView) findViewById(R.id.tv_user_name);
-        mName = (TextView) findViewById(R.id.tv_name_profile);
-        mMail = (TextView) findViewById(R.id.tv_mail_adress);
-        mDate = (TextView) findViewById(R.id.tv_date);
-        mChangeInfo = (TextView) findViewById(R.id.tv_change_info);
-        //Boto canviar dades
+        mMemberNum = (TextView) findViewById(R.id.tv_prof_num_member);
+        mUserName = (TextView) findViewById(R.id.tv_prof_user_name);
+        mCreateDate = (TextView) findViewById(R.id.tv_prof_create_date);
+        mName = (EditText) findViewById(R.id.et_prof_name);
+        mLastName = (EditText) findViewById(R.id.et_prof_lastName);
+        mBirthDate = (EditText) findViewById(R.id.et_prof_birthDate);
+        mAddress = (EditText) findViewById(R.id.et_prof_adress);
+        mCountry = (EditText) findViewById(R.id.et_prof_country);
+        mPhone = (EditText) findViewById(R.id.et_prof_phone);
+        mMail = (EditText) findViewById(R.id.et_prof_mail);
+        mChangeInfo = (Button) findViewById(R.id.bt_prof_changeProf);
+        mChangePass = (Button) findViewById(R.id.bt_prof_changePass);
+        //Listener boto canviar informacio
         mChangeInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO Create info dialog
+
             }
         });
-        mChangePass = (TextView) findViewById(R.id.tv_change_pass);
-        //Boto canviar pass
+        //Listener boto canviar contrassenya
         mChangePass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 changePassDialog();
             }
         });
-        //Carrega informació de la pàgina
-        loadInfo();
+        //Listener per escollir data en calendari
+        mBirthDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        //Popula la data al editText
+                        DecimalFormat mFormat = new DecimalFormat("00");
+                        final String selectedDate = year + "-" + mFormat.format(Double.valueOf(month + 1)) + "-" + mFormat.format(Double.valueOf(day));
+                        mBirthDate.setText(selectedDate);
+                    }
+                });
+
+                newFragment.show(getSupportFragmentManager(), "datePicker");
+            }
+        });
+        GetInfoTask getInfoTask = new GetInfoTask();
+        getInfoTask.execute(infoHash());
     }
 
     /**
@@ -97,8 +138,8 @@ public class ProfileActivity extends AppCompatActivity {
         changePassDialog = new Dialog(context);
         changePassDialog.setContentView(R.layout.change_pass_dialog);
         //Camps de text
-        EditText mOldPass = (EditText) changePassDialog.findViewById(R.id.et_old_pass);
-        EditText mNewPass = (EditText) changePassDialog.findViewById(R.id.et_new_pass);
+        mOldPass = (EditText) changePassDialog.findViewById(R.id.et_old_pass);
+        mNewPass = (EditText) changePassDialog.findViewById(R.id.et_new_pass);
         //Botó tancar diàleg
         Button closeDialog = changePassDialog.findViewById(R.id.bt_exit_pass);
         closeDialog.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
                     passTask.execute(changePassHash());
                 }
                 else if(mOldPass.getText().toString().trim().length()>0 && mNewPass.getText().toString().trim().length()==0){
-                    Toast.makeText(ProfileActivity.this, "Introduir nova contrassenta!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "Introduir nova contrassenya!", Toast.LENGTH_LONG).show();
                 }
                 else if(mOldPass.getText().toString().trim().length()==0 && mNewPass.getText().toString().trim().length()>0){
                     Toast.makeText(ProfileActivity.this, "Introduir contrassenya antiga!", Toast.LENGTH_LONG).show();
@@ -127,15 +168,39 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         });
+        changePassDialog.show();
     }
 
     /**
      * Method to call the task to load user's info
      */
     private void loadInfo(){
-        //Executa connexió al server
-        GetInfoTask client = new GetInfoTask();
-        client.execute(infoHash());
+        if(responseServer.get("codi_retorn").equals(String.valueOf(6000))){
+            User user = Utils.hashToAdmin(responseServer);
+            mMemberNum.setText("Numero de soci: " + user.getMemberNum());
+            mUserName.setText("Nom usuari: " + user.getUserName());
+            mCreateDate.setText("");
+            mName.setText(user.getName());
+            mLastName.setText(user.getLastName());
+            mBirthDate.setText(user.getBirthDate());
+            mAddress.setText(user.getAddress());
+            mCountry.setText(user.getCountry());
+            mPhone.setText(user.getPhoneNum());
+            mMail.setText(user.getMail());
+        }
+        if(responseServer.get("codi_retorn").equals(String.valueOf(5000))){
+            User user = Utils.hashToUser(responseServer);
+            mMemberNum.setText("Numero de soci: " + user.getMemberNum());
+            mUserName.setText("Nom usuari: " + user.getUserName());
+            mCreateDate.setText("Data d'alta: " + user.getCreateDate());
+            mName.setText(user.getName());
+            mLastName.setText(user.getLastName());
+            mBirthDate.setText(user.getBirthDate());
+            mAddress.setText(user.getAddress());
+            mCountry.setText(user.getCountry());
+            mPhone.setText(user.getPhoneNum());
+            mMail.setText(user.getMail());
+        }
     }
 
     /**
@@ -144,10 +209,15 @@ public class ProfileActivity extends AppCompatActivity {
      */
     private HashMap<String, String> infoHash(){
         HashMap<String, String> loginHash = new HashMap<String, String>();
-        //TODO determinar acció
-        loginHash.put("accio", "obte_dades");
+        if(isAdmin){
+            loginHash.put("accio", "mostra_admin");
+            loginHash.put("nom_admin", nameUser);
+        }
+        else{
+            loginHash.put("accio", "mostra_usuari");
+            loginHash.put("user_name", nameUser);
+        }
         loginHash.put("codi", String.valueOf(sessionCode));
-        loginHash.put("nom", nameUser);
 
         return loginHash;
     }
@@ -157,118 +227,12 @@ public class ProfileActivity extends AppCompatActivity {
      */
     private HashMap<String, String> changePassHash(){
         HashMap<String, String> changePassHash = new HashMap<String, String>();
-        //TODO determinar acció
         changePassHash.put("accio", "canvia_password");
         changePassHash.put("codi", String.valueOf(sessionCode));
-        changePassHash.put("nom", nameUser);
+        changePassHash.put("password", mOldPass.getText().toString());
+        changePassHash.put("password_nou", mNewPass.getText().toString());
 
         return changePassHash;
-    }
-
-    /**
-     * Task to get profile information from server
-     * Sent onBackground some HashMap regarding login credentials
-     * Server sends back HashMap with user's information
-     */
-    private class GetInfoTask extends AsyncTask<HashMap<String, String>, Void, HashMap<String, String>>{
-        //Diàleg de càrrega
-        ProgressDialog progressDialog;
-        //Mostra barra de progrés
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setTitle("Conectant al servidor");
-            progressDialog.setMessage("Esperi...");
-            progressDialog.show();
-        }
-
-        @Override
-        protected HashMap<String, String> doInBackground(HashMap<String, String>... values){
-            try {
-                //Se conecta al servidor
-                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
-                Log.i("I/TCP Client", "Connecting...");
-                //socket = new Socket(ADDRESS, SERVERPORT);
-                socket.connect(serverAddr, 1000);
-                Log.i("I/TCP Client", "Connected to server");
-                //envia peticion de cliente
-                Log.i("I/TCP Client", "Send data to server");
-                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-                HashMap<String, String> request = values[0];
-                output.writeObject(request);
-                //recibe respuesta del servidor y formatea a String
-                Log.i("I/TCP Client", "Getting data from server");
-                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                //Obte HashMap
-                HashMap<String, String> received = (HashMap) input.readObject();
-                input.close();
-                output.close();
-                //Log
-                Log.i("I/TCP Client", "Received " + received.get("login"));
-                Log.i("I/TCP Client", "Code " + received.get("codi"));
-                //cierra conexion
-                socket.close();
-                return received;
-            } catch (UnknownHostException ex) {
-                Log.e("E/TCP  UKN", ex.getMessage());
-                return null;
-            } catch (SocketTimeoutException ex){
-                Log.e("E/TCP Client TIMEOUT", ex.getMessage());
-                return null;
-            } catch (IOException ex) {
-                Log.e("E/TCP Client IO", ex.getMessage());
-                return null;
-            } catch (ClassNotFoundException ex) {
-                Log.e("E/TCP Client CNF", ex.getMessage());
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(HashMap<String, String> value){
-            //Tanca el dialeg de carrega
-            progressDialog.dismiss();
-            //TODO change conditions for getting codes from server
-            try{
-                if(value.get("login").equals("ko")){
-                    if(value.get("codi").equals("0001")){
-                        Toast.makeText(ProfileActivity.this, "Usuari Erroni!", Toast.LENGTH_LONG).show();
-                    }
-                    else if(value.get("codi").equals("0002")){
-                        Toast.makeText(ProfileActivity.this, "Contrassenya Erronia!", Toast.LENGTH_LONG).show();
-                    }
-                }
-                else if(value.get("login").equals("ok")){
-                    if(isAdmin){
-                        /*TODO when server ready, get data from HashMap to put on TextViews
-                        mUserName.setText(response.getString(1));
-                        mName.setText(response.getString(3));
-                        mMail.setText(response.getString(5));
-                        mDate.setText("");
-                        */
-                    }
-                    else{
-                        /*TODO when server ready, get data from HashMap to put on TextViews
-                        mUserName.setText(response.getString(1));
-                        mName.setText(response.getString(7));
-                        mMail.setText(response.getString(5));
-                        mDate.setText(response.getString(4));
-                        */
-                    }
-                }else if(value.get("codi").equals(20)){
-                    Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }
-                else{
-                    Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_LONG).show();
-                }
-            }catch (Exception e){
-                Log.e("E/TCP Client onPost", e.getMessage());
-            }
-        }
     }
 
     /**
@@ -335,28 +299,133 @@ public class ProfileActivity extends AppCompatActivity {
         protected void onPostExecute(Integer response){
             //Tanca el dialeg de carrega
             progressDialog.dismiss();
-            //TODO Falta codi de confirmació
             try{
-                if(response==1234) {
-                    Toast.makeText(ProfileActivity.this, "Contrassenya canviada!", Toast.LENGTH_LONG).show();
+                if(response==9000) {
+                    Toast.makeText(ProfileActivity.this, "Contrassenya canviada!", Toast.LENGTH_SHORT).show();
                     changePassDialog.dismiss();
                 }
                 else if(response==1){
-                    Toast.makeText(ProfileActivity.this, "Error conectant al server!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
                     changePassDialog.dismiss();
                 }
+                else if(response==0){
+                    Toast.makeText(ProfileActivity.this, "Error Servidor", Toast.LENGTH_SHORT).show();
+                    changePassDialog.dismiss();
+                }
+                else if(response==9010){
+                    Toast.makeText(ProfileActivity.this, "Contrassenya no valida", Toast.LENGTH_SHORT).show();
+                }
                 else if(response==10){
-                    Toast.makeText(ProfileActivity.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
                     changePassDialog.dismiss();
                     Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
                     startActivity(mainActivity);
+                    finish();
                 }else{
-                    Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_SHORT).show();
                     changePassDialog.dismiss();
                 }
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 changePassDialog.dismiss();
+            }
+        }
+    }
+
+    private class GetInfoTask extends AsyncTask<HashMap<String, String>, Void, HashMap<String, String>>{
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected HashMap<String, String> doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte HashMap
+                HashMap<String, String> received = (HashMap) input.readObject();
+                input.close();
+                output.close();
+                //cierra conexion
+                socket.close();
+                return received;
+            } catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TIMEOUT", ex.getMessage());
+                return null;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<String, String> response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+            try{
+                if(response==null){
+                    Toast.makeText(ProfileActivity.this, "Error consultant dades", Toast.LENGTH_SHORT).show();
+                    Intent mainActivity = new Intent(ProfileActivity.this, AdminMain.class);
+                    startActivity(mainActivity);
+                    finish();
+                }
+                else{
+                    if(response.get("codi_retorn").equals("5000") || response.get("codi_retorn").equals("6000")){
+                        responseServer = response;
+                        loadInfo();
+                    }
+                    else if(response.get("codi_retorn").equals("5010") || response.get("codi_retorn").equals("6010")){
+                        Toast.makeText(ProfileActivity.this, "Usuari no valid", Toast.LENGTH_SHORT).show();
+                        Intent mainActivity = new Intent(ProfileActivity.this, AdminMain.class);
+                        startActivity(mainActivity);
+                        finish();
+                    }
+                    else if(response.get("codi_retorn").equals("0")){
+                        Toast.makeText(ProfileActivity.this, "Error del servidor", Toast.LENGTH_SHORT).show();
+                        Intent mainActivity = new Intent(ProfileActivity.this, AdminMain.class);
+                        startActivity(mainActivity);
+                        finish();
+                    }
+                    else{
+                        Toast.makeText(ProfileActivity.this, "Error del servidor", Toast.LENGTH_SHORT).show();
+                        Intent mainActivity = new Intent(ProfileActivity.this, AdminMain.class);
+                        startActivity(mainActivity);
+                        finish();
+                    }
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+                Intent mainActivity = new Intent(ProfileActivity.this, AdminMain.class);
+                startActivity(mainActivity);
+                finish();
             }
         }
     }

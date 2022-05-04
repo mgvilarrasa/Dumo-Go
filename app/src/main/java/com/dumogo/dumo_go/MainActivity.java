@@ -25,7 +25,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -37,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUser, mPass;
     private Button mLogin;
     private CheckBox mIsAdmin;
+    //Codi conexio
+    //TODO DELETE - private static HashMap<String, String> loginResponse;
     private static int loginResponse;
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
@@ -56,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         setContentView(R.layout.activity_main);
-        //Classe per les crides al server
-        ServerCalls serverCalls = new ServerCalls(MainActivity.this);
 
         mUser = (EditText) findViewById(R.id.et_user);
         mPass = (EditText) findViewById(R.id.et_pass);
@@ -70,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //Tots els campls plens
                 if(mUser.getText().toString().trim().length()>0 && mPass.getText().toString().trim().length()>0){
-                    //Fa la petició al server
-                    int response = serverCalls.hastToInt(loginHash());
-                    actionLogin(response);
+                    //Executa connexió al client
+                    LoginTask client = new LoginTask();
+                    client.execute(loginHash());
                 }
                 else if(mUser.getText().toString().trim().length()>0 && mPass.getText().toString().trim().length()==0){
                     Toast.makeText(MainActivity.this, "Introduir Contrassenya!", Toast.LENGTH_LONG).show();
@@ -133,32 +132,108 @@ public class MainActivity extends AppCompatActivity {
         return loginHash;
     }
 
-    private void actionLogin(int response){
-        if(response==8010 || response==7010) {
-            Toast.makeText(MainActivity.this, "Usuari Erroni!", Toast.LENGTH_SHORT).show();
-            mUser.requestFocus();
+    /**
+     * Login Task to connect to Server check for login
+     * Sent onBackground some HashMap regarding login credentials
+     * Server sends back session code or failure code
+     */
+    private class LoginTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
         }
+        //Conecta Server i envia dades login. Rep codi de connexio o KO
+        @Override
+        protected Integer doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte HashMap
+                int received = (Integer) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                Log.i("I/TCP Client", "Code " + received);
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return 0;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return 1;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return 0;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return 0;
+            }
+        }
+        //Si login OK, enmagatxema la dada
+        //Si dada OK, mostra Toast
+        @Override
+        protected void onPostExecute(Integer value){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+            try{
+                if(value==8010 || value==7010) {
+                    Toast.makeText(MainActivity.this, "Usuari Erroni!", Toast.LENGTH_SHORT).show();
+                    mUser.requestFocus();
+                }
 
-        else if(response==8020 || response==7020){
-            Toast.makeText(MainActivity.this, "Contrassenya Erronia!", Toast.LENGTH_SHORT).show();
-            mPass.requestFocus();
-        }
+                else if(value==8020 || value==7020){
+                    Toast.makeText(MainActivity.this, "Contrassenya Erronia!", Toast.LENGTH_SHORT).show();
+                    mPass.requestFocus();
+                }
 
-        else if(response==8030 || response==7030){
-            Toast.makeText(MainActivity.this, "Error conectant Base de Dades!", Toast.LENGTH_SHORT).show();
-            mPass.requestFocus();
-        }
+                else if(value==8030 || value==7030){
+                    Toast.makeText(MainActivity.this, "Sessio ja iniciada", Toast.LENGTH_SHORT).show();
+                    mPass.requestFocus();
+                }
 
-        else if(response==10){
-            Toast.makeText(MainActivity.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-        }
-        else if(response==1){
-            Toast.makeText(MainActivity.this, "Error conectant al servidor", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_SHORT).show();
-            codeFromServer(response);
-            goActivityUser();
+                else if(value==0){
+                    Toast.makeText(MainActivity.this, "Error conectant Base de Dades!", Toast.LENGTH_SHORT).show();
+                    mPass.requestFocus();
+                }
+
+                else if(value==10){
+                    Toast.makeText(MainActivity.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
+                }
+                else if(value==1){
+                    Toast.makeText(MainActivity.this, "Error conectant al servidor", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Entrant...", Toast.LENGTH_SHORT).show();
+                    codeFromServer(value);
+                    goActivityUser();
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+            }
         }
     }
 
@@ -176,8 +251,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
+            finish();
         }
 
         this.doubleBackToExitPressedOnce = true;
@@ -190,5 +264,6 @@ public class MainActivity extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
+        return;
     }
 }

@@ -34,4 +34,7 @@
     <string name="dialog_add_user">Afegir usuari</string>
     <string name="cb_au_isAdmin">Admin</string>
     <string name="menu_logout">Logout</string>
+    <string name="bt_change_info">Modifica</string>
+    <string name="bt_change_pass">Canvia \n Contrassenya</string>
+    <string name="temporal">Default</string>
 </resources>
