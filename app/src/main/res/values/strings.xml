@@ -8,6 +8,7 @@
     <string name="hide_date">Data alta (YYYY-MM-DD)</string>
     <string name="hide_mail">E-mail</string>
     <string name="hide_pass">Contrassenya</string>
+    <string name="hide_phone">Telefon</string>
     <string name="hide_bith_date">Data naixement (YYYY-MM-DD)</string>
     <string name="hide_address">Direccio</string>
     <string name="hide_country">Pais</string>

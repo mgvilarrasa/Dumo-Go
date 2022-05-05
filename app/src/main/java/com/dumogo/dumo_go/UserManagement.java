@@ -22,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -32,10 +33,11 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 import utilities.DatePickerFragment;
-import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -57,10 +59,15 @@ public class UserManagement extends AppCompatActivity {
     private RadioButton mUsersRb;
     private RadioButton mAdminsRb;
     private ListView mUserList;
+    private RadioGroup mTypeUsers;
     //Variables d'us
     private String[] listUsers;
     private String userSelected;
+    private ArrayList<HashMap<String, String>> usersHashList;
     private Context context = this;
+    private boolean getListOk;
+    //Adapter
+    ArrayAdapter<String> adapter;
     //Texts add user
     private String userName;
     private String nom;
@@ -72,6 +79,7 @@ public class UserManagement extends AppCompatActivity {
     private String pass;
     private String date;
     private String email;
+    private String phone;
     //Diàlegs
     private Dialog addUserDialog;
 
@@ -88,19 +96,14 @@ public class UserManagement extends AppCompatActivity {
         //Inicialitza view variables
         mAddUser = (Button) findViewById(R.id.bt_add_user);
         mDeleteUser = (Button) findViewById(R.id.bt_delete_user);
+        mTypeUsers = (RadioGroup) findViewById(R.id.rg_um_typeUsers);
         mUsersRb = (RadioButton) findViewById(R.id.rb_User);
         mAdminsRb = (RadioButton) findViewById(R.id.rb_Admin);
         mUsersRb.setChecked(true);
-        //Omple l'array d'usuaris per la cerca
-        listUsers = listUsers();
-        //Adapter usuaris mostrats
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, listUsers);
+        //Cercador de usuaris
         mUserAc = (AutoCompleteTextView) findViewById(R.id.ac_users);
-        //Afegeix els possibles cercadors
-        mUserAc.setAdapter(adapter);
+        //Llista d'usuaris
         mUserList = (ListView) findViewById(R.id.user_list);
-        //Afegeix elements a la llista
-        mUserList.setAdapter(adapter);
         //Obte l'usuari seleccionat
         mUserList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -108,6 +111,7 @@ public class UserManagement extends AppCompatActivity {
                 userSelected = adapter.getItem(position);
             }
         });
+
         //Boto afegir usuari
         mAddUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,17 +126,52 @@ public class UserManagement extends AppCompatActivity {
                 deleteUserDialog();
             }
         });
+        //Listener radioGroup
+        mTypeUsers.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                loadUsers();
+            }
+        });
+
+        loadUsers();
     }
 
-    //TODO delete when final list is ready
-    private static final String[] USERS = new String[]{
-            "Pep25", "Oscar39", "Marc45", "Carmelo", "Mgv11", "mgv"
-    };
+    /**
+     * Execute task to get users
+     * if error, goes back on app
+     * if ok, loads list of users
+     */
+    private void loadUsers() {
+        GetListTask getListTask = new GetListTask();
+        if(mUsersRb.isChecked()){
+            getListTask.execute(getListUsersHash());
+        }
+        if(mAdminsRb.isChecked()){
+            getListTask.execute(getListAdminsHash());
+        }
+    }
 
-    //TODO when server is ready, complete function
-    private String[] listUsers() {
-        //TODO troba llista usuaris
-        return USERS;
+    /**
+     * Generates list of users as String vector
+     * @param hashList List of users hashmap
+     * @return String vecor with users names
+     */
+    private String[] listUsers(ArrayList<HashMap<String, String>> hashList) {
+        int numItems = hashList.size();
+        String crida = "";
+        String[] users = new String[numItems];
+        if(mUsersRb.isChecked()){
+            crida = "user_name";
+        }
+        else if(mAdminsRb.isChecked()){
+            crida = "nom_admin";
+        }
+
+        for(int i=0; i<numItems; i++){
+            users[i]=hashList.get(i).get(crida);
+        }
+        return users;
     }
 
     /**
@@ -222,7 +261,7 @@ public class UserManagement extends AppCompatActivity {
                         addUserTask.execute(addUserHash(false));
                     }
                 } else {
-                    Toast.makeText(UserManagement.this, "Introduir dades!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Introduir dades!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -259,7 +298,7 @@ public class UserManagement extends AppCompatActivity {
 
         }
         else{
-            Toast.makeText(UserManagement.this, "Usuari no seleccionat", Toast.LENGTH_LONG).show();
+            Toast.makeText(UserManagement.this, "Usuari no seleccionat", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -312,6 +351,30 @@ public class UserManagement extends AppCompatActivity {
     }
 
     /**
+     * Method to generate HashMap to get list of users
+     * @return hashMap completed
+     */
+    private HashMap<String, String> getListUsersHash(){
+        HashMap<String, String> usersHash = new HashMap<String, String>();
+        usersHash.put("accio", "llista_usuaris");
+        usersHash.put("codi", String.valueOf(sessionCode));
+
+        return usersHash;
+    }
+
+    /**
+     * Method to generate HashMap to get list of admins
+     * @return hashMap completed
+     */
+    private HashMap<String, String> getListAdminsHash(){
+        HashMap<String, String> adminsHash = new HashMap<String, String>();
+        adminsHash.put("accio", "llista_admins");
+        adminsHash.put("codi", String.valueOf(sessionCode));
+
+        return adminsHash;
+    }
+
+    /**
      * Execute task to add User
      */
     private class AddUserTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
@@ -352,7 +415,6 @@ public class UserManagement extends AppCompatActivity {
                 output.close();
                 //Log
                 Log.i("I/TCP Client", "Received");
-                Log.i("I/TCP Client", "Code " + received);
                 //cierra conexion
                 socket.close();
                 return received;
@@ -378,36 +440,36 @@ public class UserManagement extends AppCompatActivity {
 
             try{
                 if(response==1000 || response == 2000) {
-                    Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }
                 else if(response==1){
-                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }
                 else if(response==10){
-                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                     Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
                     startActivity(mainActivity);
                 }
                 else if(response==1010 || response==2010){
-                    Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_SHORT).show();
                 }else if(response==1020 || response==2020){
-                    Toast.makeText(UserManagement.this, "Contrassenya no vàlida!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Contrassenya no vàlida!", Toast.LENGTH_SHORT).show();
                 }else if(response==1030 || response==2030){
-                    Toast.makeText(UserManagement.this, "Format DNI incorrecte!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Format DNI incorrecte!", Toast.LENGTH_SHORT).show();
                 }else if(response==1031 || response==2031){
-                    Toast.makeText(UserManagement.this, "DNI repetit!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "DNI repetit!", Toast.LENGTH_SHORT).show();
                 }else if(response==1040 || response==2040){
-                    Toast.makeText(UserManagement.this, "Email incorrecte!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Email incorrecte!", Toast.LENGTH_SHORT).show();
                 }else if(response==1041 || response==2041){
-                    Toast.makeText(UserManagement.this, "Email ja existeix!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Email ja existeix!", Toast.LENGTH_SHORT).show();
                 }else if(response==0){
-                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }else{
-                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }
             }catch (Exception e){
@@ -458,7 +520,6 @@ public class UserManagement extends AppCompatActivity {
                 output.close();
                 //Log
                 Log.i("I/TCP Client", "Received");
-                Log.i("I/TCP Client", "Code " + received);
                 //cierra conexion
                 socket.close();
                 return received;
@@ -484,25 +545,122 @@ public class UserManagement extends AppCompatActivity {
 
             try{
                 if(response==3000 || response == 4000) {
-                    Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_SHORT).show();
                 }
                 else if(response==1){
-                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
                 }
                 else if(response==10){
-                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
                     Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
                     startActivity(mainActivity);
                 }
                 else if(response==3010 || response==4010){
-                    Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_SHORT).show();
                 }else if(response==0){
-                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Execute task to get list of users (admin or not)
+     */
+    private class GetListTask extends AsyncTask<HashMap<String, String>, Void, ArrayList<HashMap<String, String>>> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected ArrayList<HashMap<String, String>> doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                ArrayList<HashMap<String, String>> received = (ArrayList) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return null;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<HashMap<String, String>> response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==null) {
+                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
+                    getListOk=false;
+                }
+                else{
+                    if(response.get(0).get("codi_retorn").equals("0")){
+                        Toast.makeText(UserManagement.this, "Error Servidor!", Toast.LENGTH_SHORT).show();
+                        getListOk=false;
+                    }
+                    else if(response.get(0).get("codi_retorn").equals("1100") || response.get(0).get("codi_retorn").equals("1200")){
+                        usersHashList = response;
+                        getListOk=true;
+                        listUsers = listUsers(usersHashList);
+                        //TODO MAYBE?
+                        adapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, listUsers);
+                        mUserAc.setAdapter(adapter);
+                        mUserList.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(UserManagement.this, "Llista rebuda!", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
+                        getListOk=false;
+                    }
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+                getListOk=false;
             }
         }
     }
