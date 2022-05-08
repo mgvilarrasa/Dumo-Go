@@ -19,6 +19,7 @@
     <string name="cb_admin">Login com admin</string>
     <string name="ibt_users">Usuaris</string>
     <string name="ibt_profile">Perfil</string>
+    <string name="ibt_books">Llibres</string>
     <string name="rb_Admin">Administradors</string>
     <string name="rb_User">Usuaris</string>
     <string name="rb_All">Tots</string>
@@ -38,4 +39,19 @@
     <string name="bt_change_info">Modifica</string>
     <string name="bt_change_pass">Canvia \n Contrassenya</string>
     <string name="temporal">Default</string>
+    <string name="books_type">Genere</string>
+    <string name="books_rate">Valoracio</string>
+    <string name="books_by_author">Cerca per autor</string>
+    <string name="books_by_title">Cerca per titol</string>
+    <string name="ab_title">Afegir llibre</string>
+    <string name="ab_name">Titol llibre</string>
+    <string name="ab_author">Autor</string>
+    <string name="ab_publish_date">Data publicacio</string>
+    <string name="ab_type">Genere</string>
+    <string name="ab_create_date">Data alta</string>
+    <string name="ab_cover">Caratula</string>
+    <string name="ab_description">Descripcio</string>
+    <string name="ab_rating">Valoracio</string>
+    <string name="bt_ab_add">Afegir</string>
+    <string name="bt_ab_exit">Cancelar</string>
 </resources>

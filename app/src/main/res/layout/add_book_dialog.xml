@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/gradient_background"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_ab_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ab_title"
+        android:textSize="34sp" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_ab_name"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_name"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_author"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_author"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_publish_date"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_publish_date"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_type"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_type"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_create_date"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_create_date"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_cover"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_cover"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_description"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:gravity="start|top"
+                android:hint="@string/ab_description"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_ab_rate"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:hint="@string/ab_rating"
+                android:inputType="textPersonName" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_ab_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/bt_ab_add" />
+
+        <Button
+            android:id="@+id/bt_ab_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/bt_ab_exit" />
+    </LinearLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

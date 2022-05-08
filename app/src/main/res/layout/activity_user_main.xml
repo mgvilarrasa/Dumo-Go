@@ -13,6 +13,7 @@
         android:layout_height="70dp"
         android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
+        android:contentDescription="@string/ibt_profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_welcome_user"
         app:srcCompat="@android:drawable/btn_star_big_on" />
@@ -22,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ibt_profile"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="@+id/ibt_profile_user"
         app:layout_constraintStart_toStartOf="@+id/ibt_profile_user"
         app:layout_constraintTop_toBottomOf="@+id/ibt_profile_user" />
@@ -34,4 +36,26 @@
         android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/ibt_books_user"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@string/ibt_books"
+        app:layout_constraintStart_toEndOf="@+id/ibt_profile_user"
+        app:layout_constraintTop_toBottomOf="@+id/tv_welcome_user"
+        app:srcCompat="@drawable/book_image" />
+
+    <TextView
+        android:id="@+id/tv_ibt_books_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ibt_books"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/ibt_books_user"
+        app:layout_constraintStart_toStartOf="@+id/ibt_books_user"
+        app:layout_constraintTop_toBottomOf="@+id/ibt_books_user" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

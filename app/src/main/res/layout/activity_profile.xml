@@ -94,6 +94,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
                 android:ems="10"
+                android:hint="@string/hide_nom"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -103,6 +104,17 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_cognoms"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/et_prof_dni"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="5dp"
+                android:ems="10"
+                android:hint="@string/hide_dni"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -112,6 +124,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_bith_date"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -121,6 +134,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_address"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -130,6 +144,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_country"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -139,6 +154,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_phone"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -148,7 +164,9 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
+                android:hint="@string/hide_mail"
                 android:inputType="textPersonName" />
+
         </LinearLayout>
     </ScrollView>
 

@@ -9,7 +9,8 @@ import model.User;
  * author Marçal González
  */
 public class Utils {
-    public static String ADDRESS = "192.168.20.97";
+    //Acces xarxa
+    public static String ADDRESS = "192.168.1.133";
     public static  int SERVERPORT = 7777;
 
     /**
@@ -127,5 +128,82 @@ public class Utils {
             adminList.add(hashToAdmin(adminHash));
         }
         return adminList;
+    }
+
+    public static String feedbackServer(int code){
+        String message = "";
+        //Afegir usuari/admin
+        if(code == 1000 || code == 2000){
+            message = "Usuari afegit";
+        }else if(code == 1010 || code == 2010){
+            message = "Usuari no valid";
+        }else if(code == 1020 || code == 2020){
+            message = "Contrassenya no valida";
+        }else if(code == 1030 || code == 2030){
+            message = "Format DNI incorrecte";
+        }else if(code == 1031 || code == 2031){
+            message = "DNI ja existeix";
+        }else if(code == 1040 || code == 2040){
+            message = "Correu incorrecte";
+        }else if(code == 1041 || code == 2041){
+            message = "Correu repetit";
+        }
+        //Esborrar usuari/admin
+        else if(code == 3000 || code == 4000){
+            message = "Usuari esborrat";
+        }else if(code == 3010 || code == 4010){
+            message = "Usuari inexistent";
+        }
+        //Mostra usuari/admin
+        else if(code == 5000 || code == 6000){
+            message = "Mostrant usuari";
+        }else if(code == 5010 || code == 6010){
+            message = "Usuari no valid";
+        }
+        //Comprobar usuari/admin
+        else if(code == 7010 || code == 8010){
+            message = "Usuari no existeix";
+        }else if(code == 7020 || code == 8020){
+            message = "Contrassenya incorrecta";
+        }else if(code == 7030 || code == 8030){
+            message = "Usuari ja conectat";
+        }
+        //Canvia password
+        else if(code == 9000){
+            message = "Contrassenya modificada";
+        }else if(code == 9010){
+            message = "Contrassenya no valida";
+        }
+        //Modifica usuari/admin
+        else if(code == 1300){
+            message = "Usuari modificat";
+        }else if(code == 1310){
+            message = "Correu incorrecte";
+        }else if(code == 1320){
+            message = "DNI incorrecte";
+        }else if(code == 1330){
+            message = "Contrassenya incorrecta";
+        }
+        //Afegir llibre
+        else if(code == 1400){
+            message = "Llibre afegit";
+        }
+        //Esborrar llibre
+        else if(code == 1500){
+            message = "Llibre esborrat";
+        }else if(code == 1510){
+            message = "Llibre inexistent";
+        }
+        //Generics
+        else if(code == 0){
+            message = "Error del servidor";
+        }else if(code == 10){
+            message = "Sessio caducada";
+        }else if(code == 1){
+            message = "Error conectant al servidor";
+        }else{
+            message = "Error!";
+        }
+        return message;
     }
 }

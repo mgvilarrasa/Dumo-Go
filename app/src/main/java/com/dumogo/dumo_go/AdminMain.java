@@ -42,6 +42,7 @@ public class AdminMain extends AppCompatActivity {
     private TextView mNameUser;
     private ImageButton mProfile;
     private ImageButton mUserManagement;
+    private ImageButton mBooks;
     //Context
     private Context context = this;
     //Dades conexio
@@ -98,6 +99,23 @@ public class AdminMain extends AppCompatActivity {
                 startActivity(intentProfile);
             }
         });
+        //Boto llibres
+        mBooks = (ImageButton) findViewById(R.id.ibt_books_admin);
+        mBooks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Bundle d'informacio per enviar a la següent activity
+                Bundle extrasBook = new Bundle();
+                extrasBook.putString("NOM", String.valueOf(nameUser));
+                extrasBook.putInt("CODI_SESSIO", sessionCode);
+                extrasBook.putBoolean("IS_ADMIN", true);
+                //Intent per anar a la pantalla de llibres
+                Intent intentProfile = new Intent(AdminMain.this, BooksActivity.class);
+                //S'afegeixen els extras
+                intentProfile.putExtras(extrasBook);
+                startActivity(intentProfile);
+            }
+        });
     }
 
     //Menu superior per tenir opcio de logout
@@ -114,10 +132,9 @@ public class AdminMain extends AppCompatActivity {
             HashMap<String, String> hashLogout = new HashMap<>();
             hashLogout.put("codi", String.valueOf(sessionCode));
             hashLogout.put("accio", "tancar_sessio");
-            //Crida al server
-            ServerCalls serverCalls = new ServerCalls(AdminMain.this);
-            int response = serverCalls.hastToInt(hashLogout);
-            exitProgram(response);
+            //Crida tasca per tancar sessio
+            LogoutTask logoutTask = new LogoutTask();
+            logoutTask.execute(hashLogout);
         }
         else{
             return super.onContextItemSelected(item);
@@ -153,7 +170,14 @@ public class AdminMain extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
+            //Crea hash de logout
+            HashMap<String, String> hashLogout = new HashMap<>();
+            hashLogout.put("codi", String.valueOf(sessionCode));
+            hashLogout.put("accio", "tancar_sessio");
+            //Crida tasca per tancar sessio
+            LogoutTask logoutTask = new LogoutTask();
+            logoutTask.execute(hashLogout);
+            //TODO delete super.onBackPressed();
             return;
         }
 
@@ -167,5 +191,78 @@ public class AdminMain extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
+    }
+
+    /**
+     * Execute task to Send HashMap and receive Integer
+     */
+    private class LogoutTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected Integer doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                int received = (Integer) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                Log.i("I/TCP Client", "Code " + received);
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return 1;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+            try{
+                exitProgram(response);
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+                exitProgram(response);
+            }
+        }
     }
 }

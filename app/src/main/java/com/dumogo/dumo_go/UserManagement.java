@@ -439,6 +439,17 @@ public class UserManagement extends AppCompatActivity {
             progressDialog.dismiss();
 
             try{
+                if(response==10){
+                    Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    addUserDialog.dismiss();
+                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+                    startActivity(mainActivity);
+                    finish();
+                }else{
+                    Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    addUserDialog.dismiss();
+                }
+                /* TODO delete
                 if(response==1000 || response == 2000) {
                     Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
@@ -452,6 +463,7 @@ public class UserManagement extends AppCompatActivity {
                     addUserDialog.dismiss();
                     Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
                     startActivity(mainActivity);
+                    finish();
                 }
                 else if(response==1010 || response==2010){
                     Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_SHORT).show();
@@ -472,6 +484,8 @@ public class UserManagement extends AppCompatActivity {
                     Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }
+
+                 */
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 addUserDialog.dismiss();
@@ -544,6 +558,15 @@ public class UserManagement extends AppCompatActivity {
             progressDialog.dismiss();
 
             try{
+                if(response==10){
+                    Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
+                    startActivity(mainActivity);
+                    finish();
+                }else{
+                    Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                }
+                /* TODO delete
                 if(response==3000 || response == 4000) {
                     Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_SHORT).show();
                 }
@@ -562,6 +585,8 @@ public class UserManagement extends AppCompatActivity {
                 }else{
                     Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
                 }
+
+                 */
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
             }
