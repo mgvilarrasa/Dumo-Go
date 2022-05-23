@@ -1,6 +1,9 @@
 package com.dumogo.dumo_go;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -8,6 +11,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +23,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -30,8 +35,13 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import Adapter.BookAdapter;
+import model.Book;
 import utilities.DatePickerFragment;
 import utilities.Utils;
 
@@ -41,12 +51,18 @@ public class BooksActivity extends AppCompatActivity {
     private static String nameUser;
     private static int sessionCode;
     private static boolean isAdmin;
-    private static String[] ratings = {"1", "2", "3", "4", "5"};
+    private final static String[] ratings = {"1", "2", "3", "4", "5"};
     private static String selectedRate;
     private static String selectedTopic;
     private Context context = this;
+    private boolean getListOk;
+    private String[] listTitles;
+    private String[] listAuthors;
+    private List<Book> listBooks;
+    private List<Book> initialListBooks;
+    private ArrayList<HashMap<String, String>> booksHashList;
     //Array temporal de generes
-    private static String[] topics = {"Fantasia", "Suspens", "Terror", "Aventures", "Romantica", "Historia"};
+    private final static String[] topics = {"Tots", "Fantasia", "Suspens", "Terror", "Aventures", "Romantica", "Historia", "Ciencia"};
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
     private static final int SERVERPORT = Utils.SERVERPORT;
@@ -57,6 +73,12 @@ public class BooksActivity extends AppCompatActivity {
     private Spinner mByRate;
     private AutoCompleteTextView mByAuthor;
     private AutoCompleteTextView mByTitle;
+    //CardView Books
+    private RecyclerView mRecyclerBooks;
+    private BookAdapter bookAdapter;
+    //Adapter
+    ArrayAdapter<String> authorAdapter;
+    ArrayAdapter<String> titleAdapter;
     //Text add book
     private String titol;
     private String autor;
@@ -85,6 +107,8 @@ public class BooksActivity extends AppCompatActivity {
         mByRate = (Spinner) findViewById(R.id.sp_books_rate);
         mByAuthor = (AutoCompleteTextView) findViewById(R.id.ac_books_author);
         mByTitle = (AutoCompleteTextView) findViewById(R.id.ac_books_title);
+        mRecyclerBooks = findViewById(R.id.recyclerView_books);
+        mRecyclerBooks.setLayoutManager(new LinearLayoutManager(this));
         //Adapter valoracio
         ArrayAdapter<String> adapterRate = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ratings);
         adapterRate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -114,6 +138,8 @@ public class BooksActivity extends AppCompatActivity {
                 selectedTopic = "null";
             }
         });
+        GetListTask getListTask = new GetListTask();
+        getListTask.execute(getListBooksHash());
     }
 
     //Menu superior per tenir opcions d'afegir o eliminar llibres si admin
@@ -124,6 +150,7 @@ public class BooksActivity extends AppCompatActivity {
             return true;
         }
         else{
+            getMenuInflater().inflate(R.menu.books_user_menu, menu);
             return true;
         }
 
@@ -134,8 +161,8 @@ public class BooksActivity extends AppCompatActivity {
         if(item.getItemId()==R.id.add_book){
             addBookDialog();
         }
-        else if(item.getItemId()==R.id.delete_book){
-            //TODO Delete book task
+        else if(item.getItemId()==R.id.filter_book || item.getItemId()==R.id.filter_book_user){
+            loadBookCards(sortBooks());
         }
         else{
             return super.onContextItemSelected(item);
@@ -143,25 +170,133 @@ public class BooksActivity extends AppCompatActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private List<Book> sortBooks(){
+        List<Book> sortedList = new ArrayList<>();
+        //Check for filters
+        String typeFilter = mByType.getSelectedItem().toString();
+        String rateFilter = mByRate.getSelectedItem().toString();
+        String titleFilter = mByTitle.getText().toString();
+        String authorFilter = mByAuthor.getText().toString();
+
+        if(typeFilter.equals("Tots")){
+            if(titleFilter.equals("")){
+                if(authorFilter.equals("")){
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter)).collect(Collectors.toList());
+                }else{
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getAuthor().equals(authorFilter)).collect(Collectors.toList());
+                }
+            }else{
+                if(authorFilter.equals("")){
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getTitle().equals(titleFilter)).collect(Collectors.toList());
+                }else{
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getTitle().equals(titleFilter) &&
+                            p.getAuthor().equals(authorFilter)).collect(Collectors.toList());
+                }
+            }
+        }
+        else{
+            if(titleFilter.equals("")){
+                if(authorFilter.equals("")){
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getGenre().equals(typeFilter)).collect(Collectors.toList());
+                }else{
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getGenre().equals(typeFilter) &&
+                            p.getAuthor().equals(authorFilter)).collect(Collectors.toList());
+                }
+            }else{
+                if(authorFilter.equals("")){
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getGenre().equals(typeFilter) &&
+                            p.getTitle().equals(titleFilter)).collect(Collectors.toList());
+                }else{
+                    sortedList = listBooks.stream().filter(p -> Integer.parseInt(p.getRate())>Integer.parseInt(rateFilter) &&
+                            p.getGenre().equals(typeFilter) &&
+                            p.getTitle().equals(titleFilter) &&
+                            p.getAuthor().equals(authorFilter)).collect(Collectors.toList());
+                }
+            }
+        }
+
+        return sortedList;
+    }
+
     /**
      * HashMap for adding book
      * @return HashMap fulfilled
      */
     private HashMap<String, String> addBookHash() {
-        HashMap<String, String> addUserHash = new HashMap<String, String>();
-        addUserHash.put("accio", "afegir_llibre");
-        addUserHash.put("codi", String.valueOf(sessionCode));
-        addUserHash.put("nom", titol);
-        addUserHash.put("autor", autor);
-        addUserHash.put("data_alta", data_alta);
-        addUserHash.put("data_publicacio", data_publicacio);
-        addUserHash.put("admin_alta", nameUser);
-        addUserHash.put("tipus", tipus);
-        addUserHash.put("caratula", caratula);
-        addUserHash.put("descripcio", descripcio);
-        addUserHash.put("valoracio", valoracio);
+        HashMap<String, String> addBookHash = new HashMap<String, String>();
+        addBookHash.put("accio", "afegir_llibre");
+        addBookHash.put("codi", String.valueOf(sessionCode));
+        addBookHash.put("nom", titol);
+        addBookHash.put("autor", autor);
+        addBookHash.put("data_alta", data_alta);
+        addBookHash.put("data_publicacio", data_publicacio);
+        addBookHash.put("admin_alta", nameUser);
+        addBookHash.put("tipus", tipus);
+        addBookHash.put("caratula", caratula);
+        addBookHash.put("descripcio", descripcio);
+        addBookHash.put("valoracio", valoracio);
 
-        return addUserHash;
+        return addBookHash;
+    }
+
+    /**
+     * HashMap for getting list of books
+     * @return HashMap fulfilled
+     */
+    private HashMap<String, String> getListBooksHash(){
+        HashMap<String, String> getListBooksHash = new HashMap<>();
+        getListBooksHash.put("codi", String.valueOf(sessionCode));
+        getListBooksHash.put("accio", "llista_llibres");
+
+        return getListBooksHash;
+    }
+
+    /**
+     * Populates array of books titles on autocomplete EditText
+     * @param hashList ArrayList with books info in hashMaps
+     * @return array to display on autocomplete EditText
+     */
+    private String[] getListTitles(ArrayList<HashMap<String, String>> hashList) {
+        int numItems = hashList.size();
+        String[] titles = new String[numItems];
+        //TODO apply filters
+
+        for(int i=0; i<numItems; i++){
+            titles[i]=hashList.get(i).get("nom");
+        }
+        return titles;
+    }
+
+    /**
+     * Populates array of books authors on autocomplete EditText
+     * @param hashList ArrayList with books info in hashMaps
+     * @return array to display on autocomplete EditText
+     */
+    private String[] getListAuthors(ArrayList<HashMap<String, String>> hashList) {
+        int numItems = hashList.size();
+        String[] authors = new String[numItems];
+        //TODO apply filters
+
+        for(int i=0; i<numItems; i++){
+            authors[i]=hashList.get(i).get("autor");
+        }
+        return authors;
+    }
+
+    /**
+     * Inflates recycler view with Book cards
+     * @param updatedListBooks list of current books to show
+     */
+    private void loadBookCards(List<Book> updatedListBooks){
+        bookAdapter = new BookAdapter(updatedListBooks, context);
+        mRecyclerBooks.setAdapter(bookAdapter);
     }
 
     /**
@@ -327,6 +462,118 @@ public class BooksActivity extends AppCompatActivity {
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 addBookDialog.dismiss();
+            }
+        }
+    }
+
+    /**
+     * Execute task to get list of books
+     */
+    private class GetListTask extends AsyncTask<HashMap<String, String>, Void, ArrayList<HashMap<String, String>>> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected ArrayList<HashMap<String, String>> doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                ArrayList<HashMap<String, String>> received = (ArrayList) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return null;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<HashMap<String, String>> response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==null) {
+                    Toast.makeText(BooksActivity.this, "Error!", Toast.LENGTH_SHORT).show();
+                    getListOk=false;
+                }
+                else{
+                    if(response.get(0).get("codi_retorn").equals("0")){
+                        Toast.makeText(BooksActivity.this, "Error Servidor!", Toast.LENGTH_SHORT).show();
+                        getListOk=false;
+                    }
+                    else if(response.get(0).get("codi_retorn").equals("1700")){
+                        booksHashList = response;
+                        getListOk=true;
+                        //Llistes
+                        listBooks = Utils.bookList(booksHashList);
+                        initialListBooks = listBooks;
+                        listTitles = getListTitles(booksHashList);
+                        listAuthors = getListAuthors(booksHashList);
+                        //Adapters
+                        titleAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, listTitles);
+                        mByTitle.setAdapter(titleAdapter);
+                        authorAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, listAuthors);
+                        mByAuthor.setAdapter(authorAdapter);
+
+                        loadBookCards(listBooks);
+                        /*TODO DELETE
+                        bookAdapter = new BookAdapter(listBooks, context);
+                        mRecyclerBooks.setAdapter(bookAdapter);
+
+                         */
+
+                        titleAdapter.notifyDataSetChanged();
+                        authorAdapter.notifyDataSetChanged();
+
+                        Toast.makeText(BooksActivity.this, "Llista rebuda!", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(BooksActivity.this, "Error!", Toast.LENGTH_SHORT).show();
+                        getListOk=false;
+                    }
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+                getListOk=false;
             }
         }
     }

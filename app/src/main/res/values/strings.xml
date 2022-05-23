@@ -54,4 +54,6 @@
     <string name="ab_rating">Valoracio</string>
     <string name="bt_ab_add">Afegir</string>
     <string name="bt_ab_exit">Cancelar</string>
+    <string name="bt_cv_open">Obre</string>
+    <string name="bt_cv_delete">Elimina</string>
 </resources>

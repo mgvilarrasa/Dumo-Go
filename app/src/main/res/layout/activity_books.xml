@@ -72,4 +72,9 @@
         android:layout_height="48dp"
         android:hint="@string/books_by_title" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_books"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </androidx.appcompat.widget.LinearLayoutCompat>

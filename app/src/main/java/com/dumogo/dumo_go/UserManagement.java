@@ -449,43 +449,7 @@ public class UserManagement extends AppCompatActivity {
                     Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
                     addUserDialog.dismiss();
                 }
-                /* TODO delete
-                if(response==1000 || response == 2000) {
-                    Toast.makeText(UserManagement.this, "Usuari afegit!", Toast.LENGTH_SHORT).show();
-                    addUserDialog.dismiss();
-                }
-                else if(response==1){
-                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
-                    addUserDialog.dismiss();
-                }
-                else if(response==10){
-                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-                    addUserDialog.dismiss();
-                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
-                    startActivity(mainActivity);
-                    finish();
-                }
-                else if(response==1010 || response==2010){
-                    Toast.makeText(UserManagement.this, "Usuari no valid!", Toast.LENGTH_SHORT).show();
-                }else if(response==1020 || response==2020){
-                    Toast.makeText(UserManagement.this, "Contrassenya no vàlida!", Toast.LENGTH_SHORT).show();
-                }else if(response==1030 || response==2030){
-                    Toast.makeText(UserManagement.this, "Format DNI incorrecte!", Toast.LENGTH_SHORT).show();
-                }else if(response==1031 || response==2031){
-                    Toast.makeText(UserManagement.this, "DNI repetit!", Toast.LENGTH_SHORT).show();
-                }else if(response==1040 || response==2040){
-                    Toast.makeText(UserManagement.this, "Email incorrecte!", Toast.LENGTH_SHORT).show();
-                }else if(response==1041 || response==2041){
-                    Toast.makeText(UserManagement.this, "Email ja existeix!", Toast.LENGTH_SHORT).show();
-                }else if(response==0){
-                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
-                    addUserDialog.dismiss();
-                }else{
-                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
-                    addUserDialog.dismiss();
-                }
 
-                 */
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 addUserDialog.dismiss();
@@ -566,27 +530,7 @@ public class UserManagement extends AppCompatActivity {
                 }else{
                     Toast.makeText(UserManagement.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
                 }
-                /* TODO delete
-                if(response==3000 || response == 4000) {
-                    Toast.makeText(UserManagement.this, "Usuari eliminat!", Toast.LENGTH_SHORT).show();
-                }
-                else if(response==1){
-                    Toast.makeText(UserManagement.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
-                }
-                else if(response==10){
-                    Toast.makeText(UserManagement.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-                    Intent mainActivity = new Intent(UserManagement.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }
-                else if(response==3010 || response==4010){
-                    Toast.makeText(UserManagement.this, "Usuari inexistent!", Toast.LENGTH_SHORT).show();
-                }else if(response==0){
-                    Toast.makeText(UserManagement.this, "ERROR del servidor!", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();
-                }
 
-                 */
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
             }
@@ -671,7 +615,6 @@ public class UserManagement extends AppCompatActivity {
                         usersHashList = response;
                         getListOk=true;
                         listUsers = listUsers(usersHashList);
-                        //TODO MAYBE?
                         adapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, listUsers);
                         mUserAc.setAdapter(adapter);
                         mUserList.setAdapter(adapter);

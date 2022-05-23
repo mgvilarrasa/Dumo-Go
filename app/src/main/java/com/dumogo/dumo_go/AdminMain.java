@@ -177,7 +177,7 @@ public class AdminMain extends AppCompatActivity {
             //Crida tasca per tancar sessio
             LogoutTask logoutTask = new LogoutTask();
             logoutTask.execute(hashLogout);
-            //TODO delete super.onBackPressed();
+
             return;
         }
 

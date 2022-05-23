@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUser, mPass;
     private Button mLogin;
     private CheckBox mIsAdmin;
-    //Codi conexio
-    //TODO DELETE - private static HashMap<String, String> loginResponse;
     private static int loginResponse;
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;

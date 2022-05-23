@@ -260,7 +260,6 @@ public class ProfileActivity extends AppCompatActivity {
      * @return HashMap with the information to change on server
      */
     private HashMap<String, String> updateInfoHash(){
-        //TODO Change function on server. So far, pass required
         HashMap<String, String> updateInfoHash = new HashMap<String, String>();
         if(isAdmin){
             updateInfoHash.put("accio", "modifica_admin");
@@ -384,34 +383,7 @@ public class ProfileActivity extends AppCompatActivity {
                     Toast.makeText(ProfileActivity.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
                     changePassDialog.dismiss();
                 }
-                /* TODO delete
-                if(response==9000) {
-                    Toast.makeText(ProfileActivity.this, "Contrassenya canviada!", Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
-                }
-                else if(response==1){
-                    Toast.makeText(ProfileActivity.this, "Error conectant al server!", Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
-                }
-                else if(response==0){
-                    Toast.makeText(ProfileActivity.this, "Error Servidor", Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
-                }
-                else if(response==9010){
-                    Toast.makeText(ProfileActivity.this, "Contrassenya no valida", Toast.LENGTH_SHORT).show();
-                }
-                else if(response==10){
-                    Toast.makeText(ProfileActivity.this, "Sessió finalitzada!", Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
-                    Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
-                    startActivity(mainActivity);
-                    finish();
-                }else{
-                    Toast.makeText(ProfileActivity.this, "Error!", Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
-                }
 
-                 */
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 changePassDialog.dismiss();

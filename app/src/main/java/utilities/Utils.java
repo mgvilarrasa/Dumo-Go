@@ -3,6 +3,7 @@ package utilities;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.Book;
 import model.User;
 
 /**
@@ -130,6 +131,60 @@ public class Utils {
         return adminList;
     }
 
+    /**
+     * Converts Book to hashMap to send to Server
+     * @param book Book class
+     * @return hashMap for book
+     */
+    public static HashMap<String, String> bookToHash(Book book){
+        HashMap<String, String> bookHash = new HashMap<>();
+        //Omple el hashMap amb els valors del llibre
+        bookHash.put("nom", book.getTitle());
+        bookHash.put("autor", book.getAuthor());
+        bookHash.put("any_publicacio", book.getPublishDate());
+        bookHash.put("tipus", book.getGenre());
+        bookHash.put("data_alta", book.getCreateDate());
+        bookHash.put("caratula", book.getCover());
+        bookHash.put("descripcio", book.getDescription());
+        bookHash.put("valoracio", book.getRate());
+
+        return bookHash;
+    }
+
+    /**
+     * Converts HashMap with book info to Book class
+     * @param bookHash with info from book
+     * @return book class
+     */
+    public static Book hashToBook(HashMap<String, String> bookHash){
+        Book book = new Book(
+                bookHash.get("nom"),
+                bookHash.get("autor"),
+                bookHash.get("any_publicacio"),
+                bookHash.get("tipus"),
+                bookHash.get("data_alta"),
+                bookHash.get("caratula"),
+                bookHash.get("descripcio"),
+                bookHash.get("valoracio")
+        );
+
+        return book;
+    }
+
+    /**
+     * List of books from list of hashMaps
+     * @param hashList list of hashMaps with book's information
+     * @return list of books
+     */
+    public static ArrayList<Book> bookList(ArrayList<HashMap<String, String>> hashList){
+        ArrayList<Book> bookList = new ArrayList<>();
+        //Crea array de llibres a partir dels hashMaps amb la seva informacio
+        for(HashMap<String, String> bookHash : hashList){
+            bookList.add(hashToBook(bookHash));
+        }
+        return bookList;
+    }
+
     public static String feedbackServer(int code){
         String message = "";
         //Afegir usuari/admin
@@ -193,6 +248,30 @@ public class Utils {
             message = "Llibre esborrat";
         }else if(code == 1510){
             message = "Llibre inexistent";
+        }
+        //Modifica llibre
+        else if(code == 1800){
+            message = "Llibre modificat";
+        }else if(code == 1810){
+            message = "Llibre no trobat";
+        }
+        //Mostra llibre
+        else if(code == 1600){
+            message = "Llibre mostrat";
+        }else if(code == 1610){
+            message = "Llibre no trobat";
+        }
+        //Llista llibres
+        else if(code == 1700){
+            message = "Llista tornada";
+        }
+        //Puntua llibre
+        else if(code == 1900){
+            message = "Valoracio afegida";
+        }
+        //Reserva llibre
+        else if(code == 1900){
+            message = "Llibre reservat";
         }
         //Generics
         else if(code == 0){
