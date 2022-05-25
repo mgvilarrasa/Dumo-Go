@@ -5,12 +5,7 @@
         android:title="Add"
         app:showAsAction="always"
         android:icon="@android:drawable/ic_menu_add"/>
-    <!--TODO DELETE
-    <item  android:id="@+id/delete_book"
-        android:title="Delete"
-        app:showAsAction="always"
-        android:icon="@android:drawable/ic_delete"/>
-        -->
+
     <item  android:id="@+id/filter_book"
         android:title="Search"
         app:showAsAction="always"

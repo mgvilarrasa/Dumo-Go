@@ -510,7 +510,6 @@ public class UserManagement extends AppCompatActivity {
                 Log.e("E/TCP Client TimeOut", ex.getMessage());
                 return 1;
             } catch (IOException ex) {
-                //TODO change back
                 Log.e("E/TCP Client IO", "ex.getMessage()");
                 return 0;
             } catch (ClassNotFoundException ex) {

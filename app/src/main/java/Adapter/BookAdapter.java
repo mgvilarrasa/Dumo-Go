@@ -60,7 +60,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
                 Bundle extrasBook = new Bundle();
                 extrasBook.putString("NOM", String.valueOf(nameUser));
                 extrasBook.putInt("CODI_SESSIO", sessionCode);
-                extrasBook.putBoolean("IS_ADMIN", true);
+                extrasBook.putBoolean("IS_ADMIN", isAdmin);
                 extrasBook.putString("LLIBRE", bookList.get(holder.getAdapterPosition()).getId());
                 //Intent per anar a la pantalla de llibres
                 Intent intentProfile = new Intent(context, BookProfile.class);

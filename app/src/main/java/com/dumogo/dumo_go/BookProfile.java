@@ -102,12 +102,11 @@ public class BookProfile extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         if(isAdmin){
             getMenuInflater().inflate(R.menu.admin_book_menu, menu);
-            return true;
         }
         else{
             getMenuInflater().inflate(R.menu.user_book_menu, menu);
-            return true;
         }
+        return true;
     }
 
     //Opcions llibre si admin
