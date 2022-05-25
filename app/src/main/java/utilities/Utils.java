@@ -1,5 +1,9 @@
 package utilities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,6 +17,9 @@ public class Utils {
     //Acces xarxa
     public static String ADDRESS = "192.168.1.133";
     public static  int SERVERPORT = 7777;
+    //Llistes estatiques
+    public final static String[] topics = {"Tots", "Fantasia", "Suspens", "Terror", "Aventures", "Romantica", "Historia", "Ciencia"};
+    public final static String[] topicsNonAll = {"Fantasia", "Suspens", "Terror", "Aventures", "Romantica", "Historia", "Ciencia"};
 
     /**
      * Converts user to hashMap to send to Server
@@ -147,6 +154,7 @@ public class Utils {
         bookHash.put("caratula", book.getCover());
         bookHash.put("descripcio", book.getDescription());
         bookHash.put("valoracio", book.getRate());
+        bookHash.put("id", book.getId());
 
         return bookHash;
     }
@@ -165,8 +173,11 @@ public class Utils {
                 bookHash.get("data_alta"),
                 bookHash.get("caratula"),
                 bookHash.get("descripcio"),
-                bookHash.get("valoracio")
+                bookHash.get("valoracio"),
+                bookHash.get("id")
         );
+
+        book.setBookedBy(bookHash.get("user_name"));
 
         return book;
     }
@@ -183,6 +194,20 @@ public class Utils {
             bookList.add(hashToBook(bookHash));
         }
         return bookList;
+    }
+
+    /**
+     * Decodes Base64 string and converts to Bitmap
+     * @param imageString Base64 String
+     * @return bitmap image
+     */
+    public static Bitmap decodeToImage(String imageString) {
+        //Decodifica a byteArray
+        byte[] decodedString = Base64.decode(imageString, Base64.DEFAULT);
+        //Transforma a bitmap i retorna imatge
+        Bitmap image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        return image;
     }
 
     public static String feedbackServer(int code){
@@ -270,7 +295,7 @@ public class Utils {
             message = "Valoracio afegida";
         }
         //Reserva llibre
-        else if(code == 1900){
+        else if(code == 2100){
             message = "Llibre reservat";
         }
         //Generics

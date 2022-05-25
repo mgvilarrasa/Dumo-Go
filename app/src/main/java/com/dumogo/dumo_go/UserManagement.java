@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -162,7 +163,7 @@ public class UserManagement extends AppCompatActivity {
         String crida = "";
         String[] users = new String[numItems];
         if(mUsersRb.isChecked()){
-            crida = "user_name";
+            crida = "nom_user";
         }
         else if(mAdminsRb.isChecked()){
             crida = "nom_admin";
@@ -272,6 +273,7 @@ public class UserManagement extends AppCompatActivity {
      */
     private void deleteUserDialog(){
         if(userSelected != null){
+
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Eliminar usuari");
             builder.setMessage("Eliminar l'usuari " + userSelected + "?");
@@ -304,7 +306,7 @@ public class UserManagement extends AppCompatActivity {
 
     /**
      * HashMap for adding user/admin
-     * @param isAdmin
+     * @param isAdmin admin or user
      * @return HashMap fulfilled
      */
     private HashMap<String, String> addUserHash(boolean isAdmin) {
@@ -503,16 +505,17 @@ public class UserManagement extends AppCompatActivity {
                 return received;
             }catch (UnknownHostException ex) {
                 Log.e("E/TCP  UKN", ex.getMessage());
-                return null;
+                return 0;
             } catch (SocketTimeoutException ex){
                 Log.e("E/TCP Client TimeOut", ex.getMessage());
                 return 1;
             } catch (IOException ex) {
-                Log.e("E/TCP Client IO", ex.getMessage());
-                return null;
+                //TODO change back
+                Log.e("E/TCP Client IO", "ex.getMessage()");
+                return 0;
             } catch (ClassNotFoundException ex) {
                 Log.e("E/TCP Client CNF", ex.getMessage());
-                return null;
+                return 0;
             }
         }
         //Recorre el ResultSet i obté les dades
@@ -619,7 +622,6 @@ public class UserManagement extends AppCompatActivity {
                         mUserAc.setAdapter(adapter);
                         mUserList.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(UserManagement.this, "Llista rebuda!", Toast.LENGTH_SHORT).show();
                     }
                     else{
                         Toast.makeText(UserManagement.this, "Error!", Toast.LENGTH_SHORT).show();

@@ -59,10 +59,7 @@ public class BooksActivity extends AppCompatActivity {
     private String[] listTitles;
     private String[] listAuthors;
     private List<Book> listBooks;
-    private List<Book> initialListBooks;
     private ArrayList<HashMap<String, String>> booksHashList;
-    //Array temporal de generes
-    private final static String[] topics = {"Tots", "Fantasia", "Suspens", "Terror", "Aventures", "Romantica", "Historia", "Ciencia"};
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
     private static final int SERVERPORT = Utils.SERVERPORT;
@@ -124,7 +121,7 @@ public class BooksActivity extends AppCompatActivity {
                 selectedRate = "null";
             }
         });
-        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, topics);
+        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Utils.topics);
         adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mByType.setAdapter(adapterType);
         mByType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -266,7 +263,6 @@ public class BooksActivity extends AppCompatActivity {
     private String[] getListTitles(ArrayList<HashMap<String, String>> hashList) {
         int numItems = hashList.size();
         String[] titles = new String[numItems];
-        //TODO apply filters
 
         for(int i=0; i<numItems; i++){
             titles[i]=hashList.get(i).get("nom");
@@ -282,7 +278,6 @@ public class BooksActivity extends AppCompatActivity {
     private String[] getListAuthors(ArrayList<HashMap<String, String>> hashList) {
         int numItems = hashList.size();
         String[] authors = new String[numItems];
-        //TODO apply filters
 
         for(int i=0; i<numItems; i++){
             authors[i]=hashList.get(i).get("autor");
@@ -295,7 +290,7 @@ public class BooksActivity extends AppCompatActivity {
      * @param updatedListBooks list of current books to show
      */
     private void loadBookCards(List<Book> updatedListBooks){
-        bookAdapter = new BookAdapter(updatedListBooks, context);
+        bookAdapter = new BookAdapter(updatedListBooks, context, nameUser, sessionCode, isAdmin);
         mRecyclerBooks.setAdapter(bookAdapter);
     }
 
@@ -310,28 +305,42 @@ public class BooksActivity extends AppCompatActivity {
         EditText mTitle = (EditText) addBookDialog.findViewById(R.id.et_ab_name);
         EditText mAuthor = (EditText) addBookDialog.findViewById(R.id.et_ab_author);
         EditText mPublishDate = (EditText) addBookDialog.findViewById(R.id.et_ab_publish_date);
-        EditText mType = (EditText) addBookDialog.findViewById(R.id.et_ab_type);
+        Spinner mType = (Spinner) addBookDialog.findViewById(R.id.et_ab_type);
         EditText mCreateDate = (EditText) addBookDialog.findViewById(R.id.et_ab_create_date);
         EditText mCover = (EditText) addBookDialog.findViewById(R.id.et_ab_cover);
         EditText mDescription = (EditText) addBookDialog.findViewById(R.id.et_ab_description);
-        EditText mRate = (EditText) addBookDialog.findViewById(R.id.et_ab_rate);
-        //Date picker
-        mPublishDate.setOnClickListener(new View.OnClickListener() {
+        Spinner mRate = (Spinner) addBookDialog.findViewById(R.id.et_ab_rate);
+        //Adapter valoracio
+        ArrayAdapter<String> adapterAddRate = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ratings);
+        adapterAddRate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRate.setAdapter(adapterAddRate);
+        mRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        //Popula la data al editText
-                        DecimalFormat mFormat = new DecimalFormat("00");
-                        final String selectedDate = year + "-" + mFormat.format(Double.valueOf(month + 1)) + "-" + mFormat.format(Double.valueOf(day));
-                        mPublishDate.setText(selectedDate);
-                    }
-                });
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                selectedRate = adapterAddRate.getItem(position);
+            }
 
-                newFragment.show(getSupportFragmentManager(), "datePicker");
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                selectedRate = "null";
             }
         });
+        //Adapter genere
+        ArrayAdapter<String> adapterAddType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Utils.topicsNonAll);
+        adapterAddType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mType.setAdapter(adapterAddType);
+        mType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                selectedTopic = adapterAddType.getItem(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                selectedTopic = "null";
+            }
+        });
+        //Date picker
         mCreateDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -363,17 +372,17 @@ public class BooksActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (mTitle.getText().toString().trim().length() > 0 && mAuthor.getText().toString().trim().length() > 0 && mPublishDate.getText().toString().trim().length() > 0
-                        && mType.getText().toString().trim().length() > 0 && mCreateDate.getText().toString().trim().length() > 0 && mCover.getText().toString().trim().length() > 0
-                        && mDescription.getText().toString().trim().length() > 0 && mRate.getText().toString().trim().length() > 0) {
+                        && mType.getSelectedItem().toString().trim().length() > 0 && mCreateDate.getText().toString().trim().length() > 0 && mCover.getText().toString().trim().length() > 0
+                        && mDescription.getText().toString().trim().length() > 0 && mRate.getSelectedItem().toString().trim().length() > 0) {
                     //Guarda dades per hashMap
                     titol = mTitle.getText().toString();
                     autor = mAuthor.getText().toString();
                     data_publicacio = mPublishDate.getText().toString();
-                    tipus = mType.getText().toString();
+                    tipus = mType.getSelectedItem().toString();
                     data_alta = mCreateDate.getText().toString();
                     caratula = mCover.getText().toString();
                     descripcio = mDescription.getText().toString();
-                    valoracio = mRate.getText().toString();
+                    valoracio = mRate.getSelectedItem().toString();
                     //Tasca per afegir llibre
                     AddBookTask addBookTask = new AddBookTask();
                     addBookTask.execute(addBookHash());
@@ -545,7 +554,6 @@ public class BooksActivity extends AppCompatActivity {
                         getListOk=true;
                         //Llistes
                         listBooks = Utils.bookList(booksHashList);
-                        initialListBooks = listBooks;
                         listTitles = getListTitles(booksHashList);
                         listAuthors = getListAuthors(booksHashList);
                         //Adapters
@@ -555,16 +563,9 @@ public class BooksActivity extends AppCompatActivity {
                         mByAuthor.setAdapter(authorAdapter);
 
                         loadBookCards(listBooks);
-                        /*TODO DELETE
-                        bookAdapter = new BookAdapter(listBooks, context);
-                        mRecyclerBooks.setAdapter(bookAdapter);
-
-                         */
 
                         titleAdapter.notifyDataSetChanged();
                         authorAdapter.notifyDataSetChanged();
-
-                        Toast.makeText(BooksActivity.this, "Llista rebuda!", Toast.LENGTH_SHORT).show();
                     }
                     else{
                         Toast.makeText(BooksActivity.this, "Error!", Toast.LENGTH_SHORT).show();

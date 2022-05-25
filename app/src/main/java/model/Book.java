@@ -1,5 +1,7 @@
 package model;
 
+import java.io.Serializable;
+
 public class Book {
     private String title;
     private String author;
@@ -9,8 +11,10 @@ public class Book {
     private String cover;
     private String description;
     private String rate;
+    private String id;
+    private String bookedBy;
 
-    public Book(String title, String author, String publishDate, String genre, String createDate, String cover, String description, String rate) {
+    public Book(String title, String author, String publishDate, String genre, String createDate, String cover, String description, String rate, String id) {
         this.title = title;
         this.author = author;
         this.publishDate = publishDate;
@@ -19,6 +23,7 @@ public class Book {
         this.cover = cover;
         this.description = description;
         this.rate = rate;
+        this.id = id;
     }
 
     public String getTitle() {
@@ -53,8 +58,20 @@ public class Book {
         return rate;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getBookedBy() {
+        return bookedBy;
+    }
+
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setBookedBy(String bookedBy) {
+        this.bookedBy = bookedBy;
     }
 
     public void setAuthor(String author) {
@@ -83,5 +100,9 @@ public class Book {
 
     public void setRate(String rate) {
         this.rate = rate;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

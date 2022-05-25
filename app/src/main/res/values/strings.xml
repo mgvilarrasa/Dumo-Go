@@ -46,9 +46,9 @@
     <string name="ab_title">Afegir llibre</string>
     <string name="ab_name">Titol llibre</string>
     <string name="ab_author">Autor</string>
-    <string name="ab_publish_date">Data publicacio</string>
+    <string name="ab_publish_date">Any publicacio(YYYY)</string>
     <string name="ab_type">Genere</string>
-    <string name="ab_create_date">Data alta</string>
+    <string name="ab_create_date">Data alta(YYYY-MM-DD)</string>
     <string name="ab_cover">Caratula</string>
     <string name="ab_description">Descripcio</string>
     <string name="ab_rating">Valoracio</string>
@@ -56,4 +56,12 @@
     <string name="bt_ab_exit">Cancelar</string>
     <string name="bt_cv_open">Obre</string>
     <string name="bt_cv_delete">Elimina</string>
+    <string name="bt_bp_booking">Reservar</string>
+    <string name="bt_bp_rate">Puntua</string>
+    <string name="bt_bp_booked">RESERVAT</string>
+    <string name="dialog_delete_user">Esborrar usuari</string>
+    <string name="dialog_delete_book">Esborrar llibre</string>
+    <string name="dialog_delete_user_message">Voleu esborrar usuari</string>
+    <string name="dialog_delete_book_message">Voleu esborrar llibre</string>
+    <string name="ub_new_name">Nou nom del llibre</string>
 </resources>
