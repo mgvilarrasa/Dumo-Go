@@ -1,6 +1,7 @@
 package com.dumogo.dumo_go;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,9 +32,14 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import Adapter.BookAdapter;
+import Adapter.CommentAdapter;
 import model.Book;
+import model.Comment;
 import utilities.Utils;
 
 public class BookProfile extends AppCompatActivity {
@@ -44,32 +51,36 @@ public class BookProfile extends AppCompatActivity {
     private static String bookId;
     private final static String[] ratings = {"1", "2", "3", "4", "5"};
     private final Context context = this;
+    private boolean hasCommments;
     //Objecte llibre
-    Book book;
-    //Array temporal de generes
-
+    private Book book;
+    //Llistes
+    private List<Comment> listComments;
+    private ArrayList<HashMap<String, String>> commentHashList;
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
     private static final int SERVERPORT = Utils.SERVERPORT;
     private static Socket socket;
     private static InetSocketAddress serverAddr;
     //Variables view
-    TextView mTitle;
-    TextView mAuthor;
-    TextView mPubdate;
-    TextView mGenre;
-    TextView mDescription;
-    RatingBar mRating;
-    TextView mBookedBy;
-    RecyclerView mRecyclerComments;
+    private TextView mTitle;
+    private TextView mAuthor;
+    private TextView mPubdate;
+    private TextView mGenre;
+    private TextView mDescription;
+    private RatingBar mRating;
+    private TextView mBookedBy;
+    //Commentsd
+    private RecyclerView mRecyclerComments;
+    private CommentAdapter commentAdapter;
     //Text update book
-    String newTitle;
-    String newAuthor;
-    String newPubDate;
-    String newDesc;
-    String newGenre;
+    private String newTitle;
+    private String newAuthor;
+    private String newPubDate;
+    private String newDesc;
+    private String newGenre;
     //Dialegs
-    Dialog updateBookDialog;
+    private Dialog updateBookDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +103,7 @@ public class BookProfile extends AppCompatActivity {
         mBookedBy = findViewById(R.id.tv_bp_booked);
         mRating = findViewById(R.id.bp_rateBook);
         mRecyclerComments = findViewById(R.id.rv_bp_comments);
-
+        mRecyclerComments.setLayoutManager(new LinearLayoutManager(this));
         GetBookInfoTask getBookInfoTask = new GetBookInfoTask();
         getBookInfoTask.execute(getBookInfoHash());
     }
@@ -124,7 +135,7 @@ public class BookProfile extends AppCompatActivity {
             //TODO Update book
         }
         if(item.getItemId()==R.id.bm_user_comment){
-            //TODO Comment to book
+            addCommentDialog();
         }
         if(item.getItemId()==R.id.bm_user_rate){
             //TODO rate book
@@ -212,6 +223,35 @@ public class BookProfile extends AppCompatActivity {
         updateBookDialog.show();
     }
 
+    private void addCommentDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Nou comentari");
+        builder.setMessage("Afegeix un comentari a: " + book.getTitle());
+        final EditText comment = new EditText(context);
+        comment.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(comment);
+        builder.setPositiveButton("Afegir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(comment.getText().toString().trim().length()>0){
+                    AddCommentTask addCommentTask = new AddCommentTask();
+                    addCommentTask.execute(addCommentHash(comment.getText().toString()));
+                }
+                else{
+                    Toast.makeText(BookProfile.this, "Introduir comentari", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Sortir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     /**
      * Shows data on View
      */
@@ -228,6 +268,18 @@ public class BookProfile extends AppCompatActivity {
             mBookedBy.setText("Reservat per: " + book.getBookedBy());
         }
         mRating.setRating(Float.parseFloat(book.getRate()));
+        //Carrega comentaris
+        GetCommentsTask getCommentsTask = new GetCommentsTask();
+        getCommentsTask.execute(getCommentsHash());
+    }
+
+    /**
+     * Inflates recycler view with Comments cards
+     * @param updatedListComments list of current comments to show
+     */
+    private void loadCommentsCards(List<Comment> updatedListComments){
+        commentAdapter = new CommentAdapter(updatedListComments, context, nameUser, sessionCode, isAdmin);
+        mRecyclerComments.setAdapter(commentAdapter);
     }
 
     /**
@@ -247,12 +299,12 @@ public class BookProfile extends AppCompatActivity {
      * @return HashMap fulfilled
      */
     private HashMap<String, String> deleteBookHash(){
-        HashMap<String, String> getInfoHash = new HashMap<>();
-        getInfoHash.put("codi", String.valueOf(sessionCode));
-        getInfoHash.put("accio", "esborrar_llibre");
-        getInfoHash.put("id", book.getId());
+        HashMap<String, String> deleteBookHash = new HashMap<>();
+        deleteBookHash.put("codi", String.valueOf(sessionCode));
+        deleteBookHash.put("accio", "esborrar_llibre");
+        deleteBookHash.put("id", book.getId());
 
-        return getInfoHash;
+        return deleteBookHash;
     }
 
     /**
@@ -272,6 +324,34 @@ public class BookProfile extends AppCompatActivity {
         updateBookHash.put("caratula", null);
 
         return updateBookHash;
+    }
+
+    /**
+     * Creates hashMap for getting comments for the book
+     * @return hashMap fulfilled
+     */
+    private HashMap<String, String> getCommentsHash(){
+        HashMap<String, String> commentsHash = new HashMap<>();
+        commentsHash.put("codi", String.valueOf(sessionCode));
+        commentsHash.put("accio", "llista_comentaris");
+        commentsHash.put("nom_llibre", book.getTitle());
+
+        return commentsHash;
+    }
+
+    /**
+     * Creates hashMap for adding coment to the book
+     * @param comentari of user
+     * @return hashMap fulfilled
+     */
+    private HashMap<String, String> addCommentHash(String comentari){
+        HashMap<String, String> addCommentHash = new HashMap<>();
+        addCommentHash.put("codi", String.valueOf(sessionCode));
+        addCommentHash.put("accio", "afegeix_comentari");
+        addCommentHash.put("id_llibre", book.getId());
+        addCommentHash.put("comentari", comentari);
+
+        return addCommentHash;
     }
 
     /**
@@ -528,6 +608,177 @@ public class BookProfile extends AppCompatActivity {
                     updateBookDialog.dismiss();
                     GetBookInfoTask getBookInfoTask = new GetBookInfoTask();
                     getBookInfoTask.execute(getBookInfoHash());
+                }
+
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Execute task to get list of books
+     */
+    private class GetCommentsTask extends AsyncTask<HashMap<String, String>, Void, ArrayList<HashMap<String, String>>> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected ArrayList<HashMap<String, String>> doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                ArrayList<HashMap<String, String>> received = (ArrayList) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return null;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<HashMap<String, String>> response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==null) {
+                    Toast.makeText(BookProfile.this, "Error!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    if(response.get(0).get("codi_retorn").equals("0")){
+                        Toast.makeText(BookProfile.this, "Error Servidor!", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(response.get(0).get("codi_retorn").equals("2900")){
+                        commentHashList = response;
+                        //Llistes
+                        listComments = Utils.commentList(commentHashList);
+                        //Carrega RecyclerView
+                        loadCommentsCards(listComments);
+                    }
+                    else{
+                        Toast.makeText(BookProfile.this, "No hi ha comentaris", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+            }
+        }
+    }
+
+    private class AddCommentTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+        //Conecta Server i envia dades login. Rep codi de connexio o KO
+        @Override
+        protected Integer doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                int received = (Integer) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return 1;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", "ex.getMessage()");
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+        //Recorre el ResultSet i obté les dades
+        @Override
+        protected void onPostExecute(Integer response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==10){
+                    Toast.makeText(BookProfile.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    Intent mainActivity = new Intent(BookProfile.this, MainActivity.class);
+                    startActivity(mainActivity);
+                    finish();
+                }else{
+                    Toast.makeText(BookProfile.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    if(response==2700){
+                        //Carrega comentaris
+                        GetCommentsTask getCommentsTask = new GetCommentsTask();
+                        getCommentsTask.execute(getCommentsHash());
+                    }
                 }
 
             }catch (Exception e){

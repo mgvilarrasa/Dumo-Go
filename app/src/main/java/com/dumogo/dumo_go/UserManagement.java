@@ -163,7 +163,7 @@ public class UserManagement extends AppCompatActivity {
         String crida = "";
         String[] users = new String[numItems];
         if(mUsersRb.isChecked()){
-            crida = "nom_user";
+            crida = "user_name";
         }
         else if(mAdminsRb.isChecked()){
             crida = "nom_admin";

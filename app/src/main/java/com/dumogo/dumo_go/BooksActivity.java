@@ -74,8 +74,8 @@ public class BooksActivity extends AppCompatActivity {
     private RecyclerView mRecyclerBooks;
     private BookAdapter bookAdapter;
     //Adapter
-    ArrayAdapter<String> authorAdapter;
-    ArrayAdapter<String> titleAdapter;
+    private ArrayAdapter<String> authorAdapter;
+    private ArrayAdapter<String> titleAdapter;
     //Text add book
     private String titol;
     private String autor;

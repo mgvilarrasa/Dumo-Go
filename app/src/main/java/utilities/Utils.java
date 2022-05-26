@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.Book;
+import model.Comment;
 import model.User;
 
 /**
@@ -183,6 +184,22 @@ public class Utils {
     }
 
     /**
+     * Converts HashMap with comment info to Comment class
+     * @param commentHash with info from comment
+     * @return comment class
+     */
+    public static Comment hashToComment(HashMap<String, String> commentHash){
+        Comment comment = new Comment();
+        comment.setId(commentHash.get("id"));
+        comment.setIdLlibre(commentHash.get("id_llibre"));
+        comment.setUser(commentHash.get("user_name"));
+        comment.setComment(commentHash.get("comentari"));
+        comment.setDate(commentHash.get("data"));
+
+        return comment;
+    }
+
+    /**
      * List of books from list of hashMaps
      * @param hashList list of hashMaps with book's information
      * @return list of books
@@ -194,6 +211,20 @@ public class Utils {
             bookList.add(hashToBook(bookHash));
         }
         return bookList;
+    }
+
+    /**
+     * List of comments from list of hashMaps
+     * @param hashList list of hashMaps with comments's information
+     * @return list of comments
+     */
+    public static ArrayList<Comment> commentList(ArrayList<HashMap<String, String>> hashList){
+        ArrayList<Comment> commentList = new ArrayList<>();
+        //Crea array de llibres a partir dels hashMaps amb la seva informacio
+        for(HashMap<String, String> commentHash : hashList){
+            commentList.add(hashToComment(commentHash));
+        }
+        return commentList;
     }
 
     /**
@@ -297,6 +328,46 @@ public class Utils {
         //Reserva llibre
         else if(code == 2100){
             message = "Llibre reservat";
+        }
+        //Retorna llibre
+        else if(code == 2200){
+            message = "Llibre tornat";
+        }else if(code == 2210){
+            message = "Llibre no reservat";
+        }
+        //Llista prestecs
+        else if(code == 2300){
+            message = "Llista rebuda";
+        }
+        //Llista prestecs usuari
+        else if(code == 2400){
+            message = "Llista rebuda";
+        }
+        //Llista llegits
+        else if(code == 2500){
+            message = "Llista rebuda";
+        }
+        //Llista prestecs urgents
+        else if(code == 2600){
+            message = "Llista rebuda";
+        }
+        //Afegeix comentari
+        else if(code == 2700){
+            message = "Comentari afegit";
+        }
+        //Elimina comentari
+        else if(code == 2800){
+            message = "Comentari eliminat";
+        }else if(code == 2810){
+            message = "Comentari inexistent";
+        }else if(code == 2820){
+            message = "Comentari d'un altre usuari";
+        }
+        //Lista comentaris
+        else if(code == 2900){
+            message = "Llista rebuda";
+        }else if(code == 2910){
+            message = "No hi ha comentaris";
         }
         //Generics
         else if(code == 0){

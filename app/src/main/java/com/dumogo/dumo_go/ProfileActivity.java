@@ -151,6 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Dialog to change password
      */
+    //TODO Only new pass required now
     private void changePassDialog(){
         //Crea el diàleg de canvi de contrassenya
         changePassDialog = new Dialog(context);
