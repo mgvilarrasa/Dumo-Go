@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -17,9 +18,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -132,13 +135,13 @@ public class BookProfile extends AppCompatActivity {
         }
         //USER
         if(item.getItemId()==R.id.bm_user_booking){
-            //TODO Update book
+            //TODO bookings
         }
         if(item.getItemId()==R.id.bm_user_comment){
             addCommentDialog();
         }
         if(item.getItemId()==R.id.bm_user_rate){
-            //TODO rate book
+            rateBookDialog();
         }
         return true;
     }
@@ -223,6 +226,9 @@ public class BookProfile extends AppCompatActivity {
         updateBookDialog.show();
     }
 
+    /**
+     * Dialog for adding comment (just users)
+     */
     private void addCommentDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Nou comentari");
@@ -240,6 +246,41 @@ public class BookProfile extends AppCompatActivity {
                 else{
                     Toast.makeText(BookProfile.this, "Introduir comentari", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+        builder.setNegativeButton("Sortir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void rateBookDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Puntua llibre");
+        builder.setMessage("Puntua el llibre: " + book.getTitle());
+        //Create LinearLayout Dynamically
+        LinearLayout layout = new LinearLayout(context);
+        //Setup Layout Attributes
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(100, 0, 0, 0);
+        layout.setLayoutParams(params);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        final RatingBar rate = new RatingBar(context);
+        rate.setNumStars(5);
+        rate.setStepSize(1);
+        rate.setLayoutParams(params);
+
+        layout.addView(rate);
+        builder.setView(layout);
+        builder.setPositiveButton("Valorar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                RateBookTask rateBookTask = new RateBookTask();
+                rateBookTask.execute(rateBookHash(String.valueOf((int)rate.getRating())));
             }
         });
         builder.setNegativeButton("Sortir", new DialogInterface.OnClickListener() {
@@ -354,6 +395,16 @@ public class BookProfile extends AppCompatActivity {
         return addCommentHash;
     }
 
+    private HashMap<String, String> rateBookHash(String valoracio){
+        HashMap<String, String> rateBookHash = new HashMap<>();
+        rateBookHash.put("codi", String.valueOf(sessionCode));
+        rateBookHash.put("accio", "puntua_llibre");
+        rateBookHash.put("id_llibre", book.getId());
+        rateBookHash.put("valoracio_usuari", valoracio);
+
+        return rateBookHash;
+    }
+
     /**
      * Task for getting book's information
      */
@@ -403,7 +454,6 @@ public class BookProfile extends AppCompatActivity {
                 Log.e("E/TCP Client TIMEOUT", ex.getMessage());
                 return null;
             } catch (IOException ex) {
-                //TODO change back
                 Log.e("E/TCP Client IO", ex.getMessage());
                 return null;
             } catch (ClassNotFoundException ex) {
@@ -705,6 +755,9 @@ public class BookProfile extends AppCompatActivity {
         }
     }
 
+    /**
+     * Add Comment to Book Task
+     */
     private class AddCommentTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
         //Diàleg de càrrega
         ProgressDialog progressDialog;
@@ -778,6 +831,91 @@ public class BookProfile extends AppCompatActivity {
                         //Carrega comentaris
                         GetCommentsTask getCommentsTask = new GetCommentsTask();
                         getCommentsTask.execute(getCommentsHash());
+                    }
+                }
+
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Rate book task
+     */
+    private class RateBookTask extends AsyncTask<HashMap<String, String>, Void, Integer> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+        //Conecta Server i envia dades login. Rep codi de connexio o KO
+        @Override
+        protected Integer doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                int received = (Integer) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return 1;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", "ex.getMessage()");
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+        //Recorre el ResultSet i obté les dades
+        @Override
+        protected void onPostExecute(Integer response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==10){
+                    Toast.makeText(BookProfile.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    Intent mainActivity = new Intent(BookProfile.this, MainActivity.class);
+                    startActivity(mainActivity);
+                    finish();
+                }else{
+                    Toast.makeText(BookProfile.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
+                    if(response==1900){
+                        //Carrega comentaris
+                        GetBookInfoTask getBookInfoTask = new GetBookInfoTask();
+                        getBookInfoTask.execute(getBookInfoHash());
                     }
                 }
 
