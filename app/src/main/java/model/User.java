@@ -1,7 +1,7 @@
 package model;
 
 /**
- * User class
+ * author Marçal Gonzalez Vilarrasa
  */
 public class User {
     //Atributs

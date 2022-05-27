@@ -26,6 +26,9 @@ import java.util.List;
 import model.Comment;
 import utilities.Utils;
 
+/**
+ * author Marçal Gonzalez Vilarrasa
+ */
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
 
     //Dades conexio

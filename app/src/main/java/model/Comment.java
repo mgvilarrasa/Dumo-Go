@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * author Marçal Gonzalez Vilarrasa
+ */
 public class Comment {
 
     private String id;

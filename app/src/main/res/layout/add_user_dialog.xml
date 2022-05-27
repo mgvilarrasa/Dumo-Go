@@ -3,149 +3,148 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@drawable/gradient_background">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tv_au_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/dialog_add_user"
-        android:textSize="34sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <CheckBox
-        android:id="@+id/cb_au_isAdmin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cb_au_isAdmin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_au_title" />
-
-    <Button
-        android:id="@+id/bt_au_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="@string/bt_save"
-        app:layout_constraintStart_toEndOf="@+id/cb_au_isAdmin"
-        app:layout_constraintTop_toBottomOf="@+id/tv_au_title" />
-
-    <Button
-        android:id="@+id/bt_au_exit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="@string/bt_cancel"
-        app:layout_constraintStart_toEndOf="@+id/bt_au_add"
-        app:layout_constraintTop_toBottomOf="@+id/tv_au_title" />
-
-    <ScrollView
-        android:id="@+id/scrollView4"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_au_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_add_user"
+            android:textSize="34sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/et_au_userName"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_user"
-                android:inputType="textPersonName" />
+            <CheckBox
+                android:id="@+id/cb_au_isAdmin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cb_au_isAdmin" />
 
-            <EditText
-                android:id="@+id/et_au_pass"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_pass"
-                android:inputType="textPassword" />
+            <Button
+                android:id="@+id/bt_au_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/bt_save" />
 
-            <EditText
-                android:id="@+id/et_au_nom"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_nom"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_cognoms"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_cognoms"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_dni"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_dni"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_data_naixement"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_bith_date"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_direccio"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_address"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_pais"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_country"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_phone"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_phone"
-                android:inputType="textPersonName" />
-
-            <EditText
-                android:id="@+id/et_au_email"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:ems="10"
-                android:hint="@string/hide_mail"
-                android:inputType="textEmailAddress" />
-
-            <EditText
-                android:id="@+id/et_au_dataAlta"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:clickable="true"
-                android:ems="10"
-                android:focusable="false"
-                android:hint="@string/hide_date"
-                android:inputType="date" />
-
+            <Button
+                android:id="@+id/bt_au_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/bt_cancel" />
         </LinearLayout>
-    </ScrollView>
+
+        <ScrollView
+            android:id="@+id/scrollView4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/et_au_userName"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_user"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_pass"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_pass"
+                    android:inputType="textPassword" />
+
+                <EditText
+                    android:id="@+id/et_au_nom"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_nom"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_cognoms"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_cognoms"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_dni"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_dni"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_data_naixement"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_bith_date"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_direccio"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_address"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_pais"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_country"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_phone"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/et_au_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:ems="10"
+                    android:hint="@string/hide_mail"
+                    android:inputType="textEmailAddress" />
+
+                <EditText
+                    android:id="@+id/et_au_dataAlta"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:clickable="true"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:hint="@string/hide_date"
+                    android:inputType="date" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

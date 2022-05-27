@@ -9,5 +9,10 @@
         android:title="Update"
         app:showAsAction="always"
         android:icon="@android:drawable/ic_menu_edit"/>
+    <item
+        android:id="@+id/bm_admin_booking"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="Return"
+        app:showAsAction="always" />
 
 </menu>

@@ -1,7 +1,8 @@
 package model;
 
-import java.io.Serializable;
-
+/**
+ * author Marçal Gonzalez Vilarrasa
+ */
 public class Book {
     private String title;
     private String author;

@@ -2,26 +2,24 @@ package Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.dumogo.dumo_go.AdminMain;
 import com.dumogo.dumo_go.BookProfile;
-import com.dumogo.dumo_go.BooksActivity;
 import com.dumogo.dumo_go.R;
-
 import java.util.List;
-
 import model.Book;
+import utilities.Utils;
 
+/**
+ * author Marçal Gonzalez Vilarrasa
+ */
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
 
     private List<Book> bookList;
@@ -52,6 +50,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
         holder.mAuthor.setText(bookList.get(position).getAuthor());
         holder.mGenre.setText(bookList.get(position).getGenre());
         holder.mRate.setText(bookList.get(position).getRate());
+        holder.mBookedBy.setText(bookList.get(position).getBookedBy());
+        if(bookList.get(position).getCover() != null){
+            Bitmap image = Utils.decodeToImage(bookList.get(position).getCover());
+            holder.mCover.setImageBitmap(image);
+        }
         //Go Book Activity
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +86,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
         private TextView mAuthor;
         private TextView mGenre;
         private TextView mRate;
+        private TextView mBookedBy;
 
         private View view;
 
@@ -93,6 +97,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
             mAuthor = (TextView) itemView.findViewById(R.id.tv_cv_books_author);
             mGenre = (TextView) itemView.findViewById(R.id.tv_cv_books_genre);
             mRate = (TextView) itemView.findViewById(R.id.tv_cv_books_rate);
+            mBookedBy = (TextView) itemView.findViewById(R.id.tv_cv_books_bookedBy);
             this.view = itemView;
         }
     }

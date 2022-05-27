@@ -22,7 +22,7 @@
             <ImageView
                 android:id="@+id/iv_bp_cover"
                 android:layout_width="150dp"
-                android:layout_height="match_parent"
+                android:layout_height="220dp"
                 app:srcCompat="@drawable/book_image" />
 
             <LinearLayout

@@ -4,14 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.effect.Effect;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,9 +18,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,10 +27,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
-
 import model.User;
 import utilities.DatePickerFragment;
-import utilities.ServerCalls;
 import utilities.Utils;
 
 /**
@@ -68,11 +62,6 @@ public class ProfileActivity extends AppCompatActivity {
     private Button mChangePass;
     //Resposta servidor
     private HashMap<String, String> responseServer;
-
-    //Diàlegs
-    private Dialog changePassDialog;
-    private EditText mOldPass;
-    private EditText mNewPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,43 +140,34 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Dialog to change password
      */
-    //TODO Only new pass required now
     private void changePassDialog(){
-        //Crea el diàleg de canvi de contrassenya
-        changePassDialog = new Dialog(context);
-        changePassDialog.setContentView(R.layout.change_pass_dialog);
-        //Camps de text
-        mOldPass = (EditText) changePassDialog.findViewById(R.id.et_old_pass);
-        mNewPass = (EditText) changePassDialog.findViewById(R.id.et_new_pass);
-        //Botó tancar diàleg
-        Button closeDialog = changePassDialog.findViewById(R.id.bt_exit_pass);
-        closeDialog.setOnClickListener(new View.OnClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Canvia contrassenya");
+        builder.setMessage("Introduir la nova contrassenya");
+        final EditText newPass = new EditText(context);
+        newPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(newPass);
+        builder.setPositiveButton("Canviar", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                changePassDialog.dismiss();
-            }
-        });
-        //Botó guardar
-        Button savePass = changePassDialog.findViewById(R.id.bt_save_pass);
-        savePass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mOldPass.getText().toString().trim().length()>0 && mNewPass.getText().toString().trim().length()>0){
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(newPass.getText().toString().trim().length()>0){
                     ChangePassTask passTask = new ChangePassTask();
-                    passTask.execute(changePassHash());
-                }
-                else if(mOldPass.getText().toString().trim().length()>0 && mNewPass.getText().toString().trim().length()==0){
-                    Toast.makeText(ProfileActivity.this, "Introduir nova contrassenya!", Toast.LENGTH_SHORT).show();
-                }
-                else if(mOldPass.getText().toString().trim().length()==0 && mNewPass.getText().toString().trim().length()>0){
-                    Toast.makeText(ProfileActivity.this, "Introduir contrassenya antiga!", Toast.LENGTH_SHORT).show();
+                    passTask.execute(changePassHash(newPass.getText().toString()));
                 }
                 else{
-                    Toast.makeText(ProfileActivity.this, "Introduir dades!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, "Introduir nova contrassenya!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        changePassDialog.show();
+        builder.setNegativeButton("Sortir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     /**
@@ -246,12 +226,11 @@ public class ProfileActivity extends AppCompatActivity {
      * Put the information in the HashMap to send to server
      * @return HashMap with the information required from server
      */
-    private HashMap<String, String> changePassHash(){
+    private HashMap<String, String> changePassHash(String newPass){
         HashMap<String, String> changePassHash = new HashMap<String, String>();
         changePassHash.put("accio", "canvia_password");
         changePassHash.put("codi", String.valueOf(sessionCode));
-        changePassHash.put("password", mOldPass.getText().toString());
-        changePassHash.put("password_nou", mNewPass.getText().toString());
+        changePassHash.put("password_nou", newPass);
 
         return changePassHash;
     }
@@ -376,18 +355,15 @@ public class ProfileActivity extends AppCompatActivity {
             try{
                 if(response==10){
                     Toast.makeText(ProfileActivity.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
                     Intent mainActivity = new Intent(ProfileActivity.this, MainActivity.class);
                     startActivity(mainActivity);
                     finish();
                 }else{
                     Toast.makeText(ProfileActivity.this, Utils.feedbackServer(response), Toast.LENGTH_SHORT).show();
-                    changePassDialog.dismiss();
                 }
 
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
-                changePassDialog.dismiss();
             }
         }
     }
