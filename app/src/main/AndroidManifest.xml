@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DumoGo">
         <activity
+            android:name=".BookingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".BookProfile"
             android:exported="false" />
         <activity

@@ -7,6 +7,15 @@
     android:background="@drawable/gradient_background"
     tools:context=".UserMain">
 
+    <TextView
+        android:id="@+id/tv_welcome_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageButton
         android:id="@+id/ibt_profile_user"
         android:layout_width="70dp"
@@ -28,15 +37,6 @@
         app:layout_constraintStart_toStartOf="@+id/ibt_profile_user"
         app:layout_constraintTop_toBottomOf="@+id/ibt_profile_user" />
 
-    <TextView
-        android:id="@+id/tv_welcome_user"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User"
-        android:textSize="34sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageButton
         android:id="@+id/ibt_books_user"
         android:layout_width="70dp"
@@ -57,5 +57,26 @@
         app:layout_constraintEnd_toEndOf="@+id/ibt_books_user"
         app:layout_constraintStart_toStartOf="@+id/ibt_books_user"
         app:layout_constraintTop_toBottomOf="@+id/ibt_books_user" />
+
+    <ImageButton
+        android:id="@+id/ibt_bookings_user"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@string/ibt_bookings"
+        app:layout_constraintStart_toEndOf="@+id/ibt_books_user"
+        app:layout_constraintTop_toBottomOf="@+id/tv_welcome_user"
+        app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+
+    <TextView
+        android:id="@+id/tv_ibt_bookings_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ibt_bookings"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/ibt_bookings_user"
+        app:layout_constraintStart_toStartOf="@+id/ibt_bookings_user"
+        app:layout_constraintTop_toBottomOf="@+id/ibt_bookings_user" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

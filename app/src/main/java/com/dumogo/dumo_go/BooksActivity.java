@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -69,6 +70,7 @@ public class BooksActivity extends AppCompatActivity {
     private Spinner mByRate;
     private AutoCompleteTextView mByAuthor;
     private AutoCompleteTextView mByTitle;
+    private CheckBox mIsFree;
     //CardView Books
     private RecyclerView mRecyclerBooks;
     private BookAdapter bookAdapter;
@@ -103,6 +105,7 @@ public class BooksActivity extends AppCompatActivity {
         mByRate = (Spinner) findViewById(R.id.sp_books_rate);
         mByAuthor = (AutoCompleteTextView) findViewById(R.id.ac_books_author);
         mByTitle = (AutoCompleteTextView) findViewById(R.id.ac_books_title);
+        mIsFree = (CheckBox) findViewById(R.id.cb_books_free);
         mRecyclerBooks = findViewById(R.id.recyclerView_books);
         mRecyclerBooks.setLayoutManager(new LinearLayoutManager(this));
         //Adapter valoracio
@@ -172,6 +175,7 @@ public class BooksActivity extends AppCompatActivity {
         String rateFilter = mByRate.getSelectedItem().toString();
         String titleFilter = mByTitle.getText().toString();
         String authorFilter = mByAuthor.getText().toString();
+        boolean freeFilter = mIsFree.isChecked();
 
         if(typeFilter.equals("Tots")){
             if(titleFilter.equals("")){
@@ -214,6 +218,9 @@ public class BooksActivity extends AppCompatActivity {
                             p.getAuthor().equals(authorFilter)).collect(Collectors.toList());
                 }
             }
+        }
+        if(freeFilter){
+            sortedList = sortedList.stream().filter(p -> p.getBookedBy().equals("LLIURE")).collect(Collectors.toList());
         }
 
         return sortedList;

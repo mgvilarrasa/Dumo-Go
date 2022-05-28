@@ -64,4 +64,8 @@
     <string name="dialog_delete_user_message">Voleu esborrar usuari</string>
     <string name="dialog_delete_book_message">Voleu esborrar llibre</string>
     <string name="ub_new_name">Nou nom del llibre</string>
+    <string name="ibt_bookings">Prestecs</string>
+    <string name="cb_cv_bookings">Tornat</string>
+    <string name="cb_cv_urgent">Fora de termini</string>
+    <string name="cb_books_free">Llibre no reservat</string>
 </resources>

@@ -1,8 +1,11 @@
 package com.dumogo.dumo_go;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import utilities.Utils;
 
@@ -35,6 +39,7 @@ public class UserMain extends AppCompatActivity {
     private TextView mNameUser;
     private ImageButton mProfile;
     private ImageButton mBooks;
+    private ImageButton mBookings;
     //Context
     private final Context context = this;
     //Dades conexio
@@ -94,6 +99,29 @@ public class UserMain extends AppCompatActivity {
                 startActivity(intentProfile);
             }
         });
+        //Boto reserves
+        mBookings = (ImageButton) findViewById(R.id.ibt_bookings_user);
+        mBookings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Bundle d'informacio per enviar a la següent activity
+                Bundle extrasBook = new Bundle();
+                extrasBook.putString("NOM", String.valueOf(nameUser));
+                extrasBook.putInt("CODI_SESSIO", sessionCode);
+                extrasBook.putBoolean("IS_ADMIN", false);
+                //Intent per anar a la pantalla de llibres
+                Intent intentBookings = new Intent(UserMain.this, BookingsActivity.class);
+                //S'afegeixen els extras
+                intentBookings.putExtras(extrasBook);
+                startActivity(intentBookings);
+            }
+        });
+        //Busca si hi ha prestecs urgents
+        HashMap<String, String> urgentBookingsHash = new HashMap<>();
+        urgentBookingsHash.put("codi", String.valueOf(sessionCode));
+        urgentBookingsHash.put("accio", "llista_prestecs_urgents");
+        GetUrgentBookingsTask getUrgentBookingsTask = new GetUrgentBookingsTask();
+        getUrgentBookingsTask.execute(urgentBookingsHash);
     }
     //Menu superior per tenir opcio de logout
     @Override
@@ -105,17 +133,54 @@ public class UserMain extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==R.id.menu_settings){
-            HashMap<String, String> hashLogout = new HashMap<>();
-            hashLogout.put("codi", String.valueOf(sessionCode));
-            hashLogout.put("accio", "tancar_sessio");
-            //Crida al server
-            LogoutTask logoutTask = new LogoutTask();
-            logoutTask.execute(hashLogout);
+            logout();
         }
         else{
             return super.onContextItemSelected(item);
         }
         return true;
+    }
+
+    /**
+     * Logout app
+     */
+    private void logout(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Logout");
+        builder.setMessage("Sortir de l'aplicacio?");
+        builder.setPositiveButton("Sortir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                HashMap<String, String> hashLogout = new HashMap<>();
+                hashLogout.put("codi", String.valueOf(sessionCode));
+                hashLogout.put("accio", "tancar_sessio");
+                //Crida al server
+                LogoutTask logoutTask = new LogoutTask();
+                logoutTask.execute(hashLogout);
+            }
+        });
+        builder.setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showBookingAlert(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Prestecs urgents");
+        builder.setMessage("Tens prestecs sense tornar!");
+        builder.setNegativeButton("Accepta", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
@@ -238,6 +303,93 @@ public class UserMain extends AppCompatActivity {
             }catch (Exception e){
                 Log.e("E/TCP Client onPost", e.getMessage());
                 exitProgram(response);
+            }
+        }
+    }
+
+    /**
+     * Execute task to get list of bookings overtime for user
+     */
+    private class GetUrgentBookingsTask extends AsyncTask<HashMap<String, String>, Void, ArrayList<HashMap<String, String>>> {
+        //Diàleg de càrrega
+        ProgressDialog progressDialog;
+        //Mostra barra de progrés
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Conectant al servidor");
+            progressDialog.setMessage("Esperi...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected ArrayList<HashMap<String, String>> doInBackground(HashMap<String, String>... values){
+            try {
+                //Se conecta al servidor
+                serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
+                Log.i("I/TCP Client", "Connecting...");
+                socket = new Socket();
+                socket.connect(serverAddr, 5000);
+                Log.i("I/TCP Client", "Connected to server");
+                //envia peticion de cliente
+                Log.i("I/TCP Client", "Send data to server");
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                HashMap<String, String> request = values[0];
+                output.writeObject(request);
+                //recibe respuesta del servidor y formatea a String
+                Log.i("I/TCP Client", "Getting data from server");
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                //Obte ResultSet
+                ArrayList<HashMap<String, String>> received = (ArrayList) input.readObject();
+                input.close();
+                output.close();
+                //Log
+                Log.i("I/TCP Client", "Received");
+                //cierra conexion
+                socket.close();
+                return received;
+            }catch (UnknownHostException ex) {
+                Log.e("E/TCP  UKN", ex.getMessage());
+                return null;
+            } catch (SocketTimeoutException ex){
+                Log.e("E/TCP Client TimeOut", ex.getMessage());
+                return null;
+            } catch (IOException ex) {
+                Log.e("E/TCP Client IO", ex.getMessage());
+                return null;
+            } catch (ClassNotFoundException ex) {
+                Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<HashMap<String, String>> response){
+            //Tanca el dialeg de carrega
+            progressDialog.dismiss();
+
+            try{
+                if(response==null) {
+                    Toast.makeText(UserMain.this, "Error!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    if(response.get(0).get("codi_retorn").equals("0")){
+                        Toast.makeText(UserMain.this, "Error Servidor!", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(response.get(0).get("codi_retorn").equals("2600")){
+                        if(response.get(0).get("id_reserva")!=null){
+                            showBookingAlert();
+                        }
+                    }
+                    else{
+                        Toast.makeText(UserMain.this, "Error al consultar prestecs", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }catch (Exception e){
+                Log.e("E/TCP Client onPost", e.getMessage());
             }
         }
     }

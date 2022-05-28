@@ -60,16 +60,29 @@
     </LinearLayout>
 
     <AutoCompleteTextView
-        android:id="@+id/ac_books_author"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="@string/books_by_author" />
-
-    <AutoCompleteTextView
         android:id="@+id/ac_books_title"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:hint="@string/books_by_title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <AutoCompleteTextView
+            android:id="@+id/ac_books_author"
+            android:layout_width="260dp"
+            android:layout_height="48dp"
+            android:hint="@string/books_by_author" />
+
+        <CheckBox
+            android:id="@+id/cb_books_free"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/cb_books_free" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_books"

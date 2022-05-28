@@ -117,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
     private HashMap<String, String> loginHash(){
         HashMap<String, String> loginHash = new HashMap<String, String>();
         if(mIsAdmin.isChecked()){
-            loginHash.put("accio", "comprobar_admin");
+            loginHash.put("accio", "comprovar_admin");
             loginHash.put("nom_admin", String.valueOf(mUser.getText()));
         }
         else{
-            loginHash.put("accio", "comprobar_usuari");
+            loginHash.put("accio", "comprovar_usuari");
             loginHash.put("user_name", String.valueOf(mUser.getText()));
         }
 

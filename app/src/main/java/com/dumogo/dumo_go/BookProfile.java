@@ -73,7 +73,7 @@ public class BookProfile extends AppCompatActivity {
     private RatingBar mRating;
     private TextView mBookedBy;
     private ImageView mBookCover;
-    //Commentsd
+    //Comments
     private RecyclerView mRecyclerComments;
     private CommentAdapter commentAdapter;
     //Text update book
@@ -827,11 +827,13 @@ public class BookProfile extends AppCompatActivity {
                         Toast.makeText(BookProfile.this, "Error Servidor!", Toast.LENGTH_SHORT).show();
                     }
                     else if(response.get(0).get("codi_retorn").equals("2900")){
-                        commentHashList = response;
-                        //Llistes
-                        listComments = Utils.commentList(commentHashList);
-                        //Carrega RecyclerView
-                        loadCommentsCards(listComments);
+                        if(response.get(0).get("comentari")!=null){
+                            commentHashList = response;
+                            //Llistes
+                            listComments = Utils.commentList(commentHashList);
+                            //Carrega RecyclerView
+                            loadCommentsCards(listComments);
+                        }
                     }
                     else{
                         Toast.makeText(BookProfile.this, "No hi ha comentaris", Toast.LENGTH_SHORT).show();

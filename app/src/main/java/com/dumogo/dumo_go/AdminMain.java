@@ -1,8 +1,11 @@
 package com.dumogo.dumo_go;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,6 +40,7 @@ public class AdminMain extends AppCompatActivity {
     private ImageButton mProfile;
     private ImageButton mUserManagement;
     private ImageButton mBooks;
+    private ImageButton mBookings;
     //Context
     private Context context = this;
     //Dades conexio
@@ -110,6 +114,23 @@ public class AdminMain extends AppCompatActivity {
                 startActivity(intentProfile);
             }
         });
+        //Boto reserves
+        mBookings = (ImageButton) findViewById(R.id.ibt_bookings);
+        mBookings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Bundle d'informacio per enviar a la següent activity
+                Bundle extrasBook = new Bundle();
+                extrasBook.putString("NOM", String.valueOf(nameUser));
+                extrasBook.putInt("CODI_SESSIO", sessionCode);
+                extrasBook.putBoolean("IS_ADMIN", true);
+                //Intent per anar a la pantalla de llibres
+                Intent intentBookings = new Intent(AdminMain.this, BookingsActivity.class);
+                //S'afegeixen els extras
+                intentBookings.putExtras(extrasBook);
+                startActivity(intentBookings);
+            }
+        });
     }
 
     //Menu superior per tenir opcio de logout
@@ -122,18 +143,41 @@ public class AdminMain extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==R.id.menu_settings){
-            //Crea hash de logout
-            HashMap<String, String> hashLogout = new HashMap<>();
-            hashLogout.put("codi", String.valueOf(sessionCode));
-            hashLogout.put("accio", "tancar_sessio");
-            //Crida tasca per tancar sessio
-            LogoutTask logoutTask = new LogoutTask();
-            logoutTask.execute(hashLogout);
+            logout();
         }
         else{
             return super.onContextItemSelected(item);
         }
         return true;
+    }
+
+    /**
+     * Logout app
+     */
+    private void logout(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Logout");
+        builder.setMessage("Sortir de l'aplicacio?");
+        builder.setPositiveButton("Sortir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //Crea hash de logout
+                HashMap<String, String> hashLogout = new HashMap<>();
+                hashLogout.put("codi", String.valueOf(sessionCode));
+                hashLogout.put("accio", "tancar_sessio");
+                //Crida tasca per tancar sessio
+                LogoutTask logoutTask = new LogoutTask();
+                logoutTask.execute(hashLogout);
+            }
+        });
+        builder.setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**

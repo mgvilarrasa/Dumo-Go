@@ -79,4 +79,25 @@
         app:layout_constraintStart_toStartOf="@+id/ibt_books_admin"
         app:layout_constraintTop_toBottomOf="@+id/ibt_books_admin" />
 
+    <ImageButton
+        android:id="@+id/ibt_bookings"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@string/ibt_bookings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ibt_users"
+        app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+
+    <TextView
+        android:id="@+id/tv_ibt_bookings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ibt_bookings"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/ibt_bookings"
+        app:layout_constraintStart_toStartOf="@+id/ibt_bookings"
+        app:layout_constraintTop_toBottomOf="@+id/ibt_bookings" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

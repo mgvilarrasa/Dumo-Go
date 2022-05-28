@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.Book;
+import model.Booking;
 import model.Comment;
 import model.User;
 
@@ -200,6 +201,33 @@ public class Utils {
     }
 
     /**
+     * Converts HashMap with booking info to Booking class
+     * @param bookingHash with info from booking
+     * @return booking class
+     */
+    public static Booking hashToBooking(HashMap<String, String> bookingHash){
+        Booking booking = new Booking();
+        booking.setId(bookingHash.get("id"));
+        booking.setBookId(bookingHash.get("id_llibre"));
+        booking.setStartDate(bookingHash.get("data_reserva"));
+        booking.setEndDate(bookingHash.get("data_retorn_teoric"));
+        if(bookingHash.get("data_retorn_real")!=null){
+            booking.setReturnDate(bookingHash.get("data_retorn_real"));
+        }
+        if(bookingHash.get("user_name")!=null){
+            booking.setUserName(bookingHash.get("user_name"));
+        }
+        booking.setBookName(bookingHash.get("nom_llibre"));
+        if("true".equals(bookingHash.get("avis_programat"))){
+            booking.setLate(true);
+        }else{
+            booking.setLate(false);
+        }
+
+        return booking;
+    }
+
+    /**
      * List of books from list of hashMaps
      * @param hashList list of hashMaps with book's information
      * @return list of books
@@ -225,6 +253,20 @@ public class Utils {
             commentList.add(hashToComment(commentHash));
         }
         return commentList;
+    }
+
+    /**
+     * List of bookings from list of hashMaps
+     * @param hashList list of hashMaps with booking's information
+     * @return list of bookings
+     */
+    public static ArrayList<Booking> bookingList(ArrayList<HashMap<String, String>> hashList){
+        ArrayList<Booking> bookingList = new ArrayList<>();
+        //Crea array de llibres a partir dels hashMaps amb la seva informacio
+        for(HashMap<String, String> bookingHash : hashList){
+            bookingList.add(hashToBooking(bookingHash));
+        }
+        return bookingList;
     }
 
     /**
