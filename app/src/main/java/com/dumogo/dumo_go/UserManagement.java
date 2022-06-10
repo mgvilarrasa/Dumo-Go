@@ -23,16 +23,29 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import org.apache.http.conn.ssl.SSLSocketFactory;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.net.ssl.SSLSocket;
+
 import utilities.DatePickerFragment;
 import utilities.Utils;
 
@@ -46,7 +59,7 @@ public class UserManagement extends AppCompatActivity {
     //Dades conexio
     private static final String ADDRESS = Utils.ADDRESS;
     private static final int SERVERPORT = Utils.SERVERPORT;
-    private static Socket socket;
+    private static SSLSocket socket;
     private static InetSocketAddress serverAddr;
     //Variables view
     private AutoCompleteTextView mUserAc;
@@ -395,8 +408,16 @@ public class UserManagement extends AppCompatActivity {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
                 Log.i("I/TCP Client", "Connecting...");
-                socket = new Socket();
-                socket.connect(serverAddr, 5000);
+                KeyStore ks = KeyStore.getInstance("BKS");
+                // Load the keystore file
+                InputStream keyin = context.getResources().openRawResource(R.raw.clienttruststore);
+                ks.load(keyin, "dumogo2022".toCharArray());
+                //SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocketFactory socketFactory = new SSLSocketFactory(ks);
+                socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                socket = (SSLSocket) socketFactory.createSocket(new Socket(ADDRESS, SERVERPORT),ADDRESS, SERVERPORT, false);
+                socket.setSoTimeout(5000);
+                socket.startHandshake();
                 Log.i("I/TCP Client", "Connected to server");
                 //envia peticion de cliente
                 Log.i("I/TCP Client", "Send data to server");
@@ -426,6 +447,9 @@ public class UserManagement extends AppCompatActivity {
                 return null;
             } catch (ClassNotFoundException ex) {
                 Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            } catch (UnrecoverableKeyException | KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -478,8 +502,16 @@ public class UserManagement extends AppCompatActivity {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
                 Log.i("I/TCP Client", "Connecting...");
-                socket = new Socket();
-                socket.connect(serverAddr, 5000);
+                KeyStore ks = KeyStore.getInstance("BKS");
+                // Load the keystore file
+                InputStream keyin = context.getResources().openRawResource(R.raw.clienttruststore);
+                ks.load(keyin, "dumogo2022".toCharArray());
+                //SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocketFactory socketFactory = new SSLSocketFactory(ks);
+                socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                socket = (SSLSocket) socketFactory.createSocket(new Socket(ADDRESS, SERVERPORT),ADDRESS, SERVERPORT, false);
+                socket.setSoTimeout(5000);
+                socket.startHandshake();
                 Log.i("I/TCP Client", "Connected to server");
                 //envia peticion de cliente
                 Log.i("I/TCP Client", "Send data to server");
@@ -510,6 +542,21 @@ public class UserManagement extends AppCompatActivity {
             } catch (ClassNotFoundException ex) {
                 Log.e("E/TCP Client CNF", ex.getMessage());
                 return 0;
+            } catch (UnrecoverableKeyException e) {
+                e.printStackTrace();
+                return null;
+            } catch (CertificateException e) {
+                e.printStackTrace();
+                return null;
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
+                return null;
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                return null;
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+                return null;
             }
         }
         //Recorre el ResultSet i obté les dades
@@ -558,8 +605,16 @@ public class UserManagement extends AppCompatActivity {
                 //Se conecta al servidor
                 serverAddr = new InetSocketAddress(ADDRESS, SERVERPORT);
                 Log.i("I/TCP Client", "Connecting...");
-                socket = new Socket();
-                socket.connect(serverAddr, 5000);
+                KeyStore ks = KeyStore.getInstance("BKS");
+                // Load the keystore file
+                InputStream keyin = context.getResources().openRawResource(R.raw.clienttruststore);
+                ks.load(keyin, "dumogo2022".toCharArray());
+                //SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocketFactory socketFactory = new SSLSocketFactory(ks);
+                socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                socket = (SSLSocket) socketFactory.createSocket(new Socket(ADDRESS, SERVERPORT),ADDRESS, SERVERPORT, false);
+                socket.setSoTimeout(5000);
+                socket.startHandshake();
                 Log.i("I/TCP Client", "Connected to server");
                 //envia peticion de cliente
                 Log.i("I/TCP Client", "Send data to server");
@@ -589,6 +644,21 @@ public class UserManagement extends AppCompatActivity {
                 return null;
             } catch (ClassNotFoundException ex) {
                 Log.e("E/TCP Client CNF", ex.getMessage());
+                return null;
+            } catch (UnrecoverableKeyException e) {
+                e.printStackTrace();
+                return null;
+            } catch (CertificateException e) {
+                e.printStackTrace();
+                return null;
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
+                return null;
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                return null;
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
                 return null;
             }
         }
